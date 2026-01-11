@@ -1,56 +1,47 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const app = express();
+const PORT = 5000;
 
-const pathFile = 'D:/Project_All/Code_project/Web_project/backend/sever/database.txt';
-let adminuser = "samisadmin1192011"
-let adminpass = "admin1192011"
-const server = http.createServer((req, res) => {
-    // Thiết lập CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+app.use(express.json());
+app.use(cors());
 
-    if (req.method === 'OPTIONS') { res.end(); return; }
+// 1. Phải dùng chung link và chung kho 'myDatabase'
+const mongoURI = "mongodb+srv://samvasang1192011_db_user:DIQ3lxS6bOt9lSGE@cluster0.pkrbima.mongodb.net/myDatabase?appName=Cluster0";
 
-    if (req.url === '/api/save-account' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', () => {
-            const { username, password } = JSON.parse(body);
+mongoose.connect(mongoURI)
+    .then(() => console.log("✅ [Server Kiểm tra] Đã kết nối MongoDB thành công!"))
+    .catch(err => console.error("❌ Lỗi kết nối:", err));
 
-            fs.readFile(pathFile, 'utf8', (err, data) => {
-                if (err) {
-                    res.statusCode = 500;
-                    res.end("Lỗi server");
-                    return;
-                }
+const UserSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    password: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
+});
+const User = mongoose.model('User', UserSchema);
 
-                const lines = data.split('\n');
-                let found = false;
-                if (username === adminuser && password === adminpass) {
-                    res.statusCode = 200;
-                    res.end("ADMIN_OK");
-                    return;
-                }else{
-                    for (let line of lines) {
-                        // Kiểm tra khớp cả User và Pass trên cùng 1 dòng 
-                        if (line.includes(`User: ${username}`) && line.includes(`Pass: ${password}`)) {
-                            found = true;
-                            break;
-                        }
-                    }
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
 
-                    if (found) {
-                        res.statusCode = 200;
-                        res.end("OK");
-                    } else {
-                        res.statusCode = 401;
-                        res.end("Sai thông tin rồi og ơi!");
-                    }
-                }
-            });
-        });
+    if (username === "samisadmin1192011" && password === "admin1192011") {
+        return res.send("ADMIN_OK");
+    }
+
+    try {
+        // ĐÂY NÈ OG: Lệnh lấy thông tin từ kho
+        const user = await User.findOne({ username: username, password: password });
+
+        if (user) {
+            console.log("🔓 Đăng nhập khớp:", username);
+            res.send("OK"); 
+        } else {
+            console.log("🚫 Không tìm thấy tài khoản!");
+            res.status(401).send("Sai thông tin!");
+        }
+    } catch (err) {
+        res.status(500).send("Lỗi server");
     }
 });
 
-server.listen(5000, () => console.log("Server đang chạy tại http://localhost:5000"));
+app.listen(PORT, () => console.log(`🔍 Server kiểm tra chạy tại: http://localhost:${PORT}`));

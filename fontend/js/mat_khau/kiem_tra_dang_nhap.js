@@ -14,7 +14,7 @@ async function kiemTra() {
     }
     try {
         // Gọi thẳng đến server cổng 5000 - nơi xử lý cả Admin và User
-        const response = await fetch('http://localhost:5000/api/save-account', {
+        const response = await fetch('http://localhost:5000/api/login', { // Đổi save-account thành login
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: user, password: pass })
