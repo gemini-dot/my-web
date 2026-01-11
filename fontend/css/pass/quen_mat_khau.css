@@ -1,0 +1,339 @@
+img {
+    height: 50px;
+    width: 50px;
+    border-radius: 10px;
+    position: absolute; /* Hoặc 'fixed' nếu muốn nó đứng yên khi cuộn trang */
+    top: 10px;    /* Cách mép trên 10px */
+    left: 10px;   /* Cách mép trái 10px */
+    z-index: 100;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    will-change: transform; /* Báo cho trình duyệt chuẩn bị phần cứng */ /* Đảm bảo nó nằm đè lên trên các thứ khác */
+}
+img:hover {
+    transform: scale(1.1);/* Phóng to 10% và hơi nghiêng cho vui mắt */
+}
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+body {
+    /* 1. Chèn đường dẫn ảnh của og vào đây */
+    background-image: url('../../assets/backgroud/11369500.jpg'); 
+
+    /* 2. Giúp ảnh phủ kín toàn bộ màn hình */
+    background-size: cover; 
+
+    /* 3. Giữ ảnh cố định, không bị trôi khi cuộn trang */
+    background-attachment: fixed; 
+
+    /* 4. Căn giữa ảnh */
+    background-position: center;
+
+    /* 5. Không cho ảnh lặp lại nếu ảnh nhỏ hơn màn hình */
+    background-repeat: no-repeat; 
+
+    /* Thêm các thuộc tính cũ của og để căn giữa form */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+/* Container chính căn giữa toàn màn hình */
+.o-tong {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Khung trắng bao quanh cả form và thanh progress */
+.the-dang-nhap {
+    background-color: white;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 450px; /* Chiều rộng đủ cho cả 2 phần */
+    display: flex;
+    flex-direction: row; /* Xếp form và thanh progress nằm ngang hàng */
+    align-items: flex-start;
+    gap: 30px;
+    position: relative;
+    transition: box-shadow 0.3s ease-in-out;
+    z-index: 2;
+}
+@keyframes lam_mo {
+    0% {
+        filter: blur(0px) brightness(100%); /* Lúc đầu: rõ nét, sáng bình thường */
+    }
+    100% {
+        filter: blur(8px) brightness(60%); /* Lúc sau: mờ tịt và tối đi */
+    }
+}
+.the-dang-nhap:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.407);
+}
+
+/* Phần chứa các ô nhập */
+.form-content {
+    flex: 1;
+}
+
+/* Thanh tiến trình nằm bên trong khung trắng, bên phải form */
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    width: 40px;
+    padding-top: 15px; /* Để số 1 ngang hàng với ô nhập đầu tiên */
+    gap: 48px;         /* Khoảng cách để các số thẳng hàng với các ô dưới */
+}
+
+/* Đường ray xám */
+.progress-container::before {
+    content: "";
+    background-color: #e0e0e0;
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 140px;
+    z-index: 1;
+}   
+
+/* Thanh xanh chạy theo JS */
+.progress-bar {
+    background-color: #3498db;
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 0%; 
+    z-index: 2;
+    transition: 0.4s ease;
+}
+
+/* Các vòng tròn số */
+.dot {
+    width: 18px;
+    height: 18px;
+    background-color: rgb(50, 48, 48);
+    border: 3px solid #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+    z-index: 3;
+    font-weight: bold;
+    color: #999;
+    transition: 0.4s;
+}
+
+/* Khi cái dot được kích hoạt (active) */
+.dot.active {
+    border-color: var(--mau-nhan1, #00ffff);
+    color: var(--mau-nhan2, #00ffd5);
+    
+    /* Hiệu ứng Glow cho cái vòng tròn */
+    box-shadow: 0 0 10px var(--mau-nhan3, #00ffff), 0 0 20px var(--mau-nhan5, rgba(0, 255, 255, 0.6));
+    
+    /* Hiệu ứng Glow cho con số bên trong */
+    text-shadow: 0 0 5px var(--mau-nhan4, #00ffd5);
+}
+
+/* Style cho các ô nhập và nút bấm */
+.o-dang-nhap {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.nut-bam {
+    width: 100%;
+    padding: 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Anton', sans-serif;
+    font-weight: 400; 
+    letter-spacing: 1px;
+}
+.nut-bam:hover {
+    transform: scale(1.01); 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.quen-mat-khau {
+    display: block;
+    margin: 15px auto 0;
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    color: #ffffff;
+    position: relative; /* Thêm dòng này để làm neo cho cái gạch chân */
+    padding-bottom: 2px; /* Tạo tí khoảng cách cho đẹp */
+}
+
+
+.quen-mat-khau::after {
+    content: '';
+    position: absolute;
+    width: 0; 
+    height: 2px; 
+    bottom: 0; /* Sát mép dưới của chữ */
+    left: 0;
+    background-color: #00000011; 
+    transition: width 0.3s ease; 
+}
+
+.quen-mat-khau:hover::after {
+    width: 100%; 
+}
+.progress-container::before {
+    content: "";
+    background-color: #e0e0e0;
+    position: absolute;
+    /* Thay đổi: Bắt đầu từ tâm nút 1 đến tâm nút 3 */
+    top: 17px; 
+    bottom: 15px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    /* Xóa bỏ dòng height: 140px cũ đi nhé og */
+    z-index: 1;
+}
+
+/* Thanh màu xanh chạy đè lên */
+.progress-bar {
+    background-color: var(--mau-nhan6, #00ffff);
+    position: absolute;
+    /* Thay đổi: Khớp vị trí bắt đầu với đường ray */
+    top: 15px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 0%; 
+    z-index: 2;
+    transition: 0.4s ease;
+}
+
+@keyframes rung_va_doi_mau {
+    0% { border-color: #ddd; transform: translateX(0); }
+    25% { border-color: #ff4d4d; transform: translateX(-5px); }
+    50% { border-color: #ff0000; transform: translateX(5px); }
+    75% { border-color: #ff4d4d; transform: translateX(-5px); }
+    100% { border-color: red; transform: translateX(0); }
+}
+
+
+.hieu-ung-sai {
+    animation: rung_va_doi_mau 0.4s ease-in-out;
+    border-color: red !important;
+    outline: none;
+}
+.the-dang-nhap {
+    /* 1. Nền trắng cực nhẹ để lấy độ trong suốt */
+    background: rgba(255, 255, 255, 0.008); 
+    
+    /* 2. Làm mờ mọi thứ phía sau thẻ (Backdrop filter) */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px); /* Cho Safari */
+
+    /* 3. Bo góc thật tròn cho giống chất lỏng */
+    border-radius: 20px;
+
+    /* 4. VIỀN: Tạo hiệu ứng ánh sáng phản chiếu ở mép kính */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-right-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+
+    /* 5. BÓNG: Đây là chỗ tạo độ nổi và sâu (Liquid look) */
+    box-shadow: 
+        0 8px 32px 0 rgba(31, 38, 135, 0.2), /* Bóng đổ mềm xuống nền */
+        inset 0 0 15px rgba(255, 255, 255, 0.2), /* Ánh sáng hắt vào bên trong */
+        inset 0 0 2px rgba(255, 255, 255, 0.5); /* Tạo độ bóng sắc nét ở rìa */
+
+    padding: 40px;
+    width: 450px;
+    transition: all 0.4s ease;
+}
+.the-dang-nhap:hover {
+    background: rgba(255, 255, 255, 0.008); /* Sáng lên tí */
+    transform: translateY(-5px) rotateX(5deg); /* Hơi nghiêng cái kính */
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+.lol {
+    display: block;
+    margin-top: -7px;
+}
+.pop-up {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-size: 18px;
+    z-index: 1000;
+    display: none; /* Mặc định ẩn đi */
+}
+.khung1, .khung2 {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+/* 2. Chỉnh lại ô nhập (Xóa margin-bottom cũ để dùng của khung cho chuẩn) */
+.o-dang-nhap {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1); /* Hơi trong suốt cho hợp tone kính */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white; /* Cho chữ trắng nhìn cho sang */
+    outline: none;
+    margin-bottom: 0; 
+}
+
+/* 3. Thiết lập cái nhãn (Chữ sẽ bay) */
+.nhan-bay {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.6);
+    pointer-events: none; /* Để nhấn xuyên qua chữ vào ô input */
+    transition: all 0.3s ease; /* Hiệu ứng mượt */
+}
+
+/* 4. ĐÂY LÀ PHÉP THUẬT: Khi nhấn vào hoặc khi đã có chữ */
+.o-dang-nhap:focus ~ .nhan-bay,
+.o-dang-nhap:valid ~ .nhan-bay {
+    top: -10px; /* Bay lên trên mép */
+    left: 8px;
+    font-size: 12px;
+    color: var(--mau-nhan, #00ffff); /* Màu xanh neon cho hợp style của og */
+    padding: 0 5px;
+    border-radius: 4px;
+}
+
+body {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE 10+ */
+    user-select: none;         /* Chuẩn chung */
+}
+
