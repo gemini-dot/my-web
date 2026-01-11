@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 // 1. Phải dùng chung link và chung kho 'myDatabase'
-const mongoURI = "mongodb+srv://samvasang1192011_db_user:DIQ3lxS6bOt9lSGE@cluster0.pkrbima.mongodb.net/myDatabase?appName=Cluster0";
+const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
     .then(() => console.log("✅ [Server Kiểm tra] Đã kết nối MongoDB thành công!"))
