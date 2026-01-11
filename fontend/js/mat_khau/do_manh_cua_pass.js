@@ -23,7 +23,7 @@ function kiemTra2() {
 
     // --- Nếu pass ổn (diem > 2) thì mới chạy xuống đây ---
     // Chỉ cần viết 1 lần fetch thôi, không cần chia if/else nữa nếu xử lý giống nhau
-    fetch('https://my-web-backend-sever.onrender.com/api/save-account', {
+    fetch('https://my-web-backend-sever2.onrender.com/api/save-account', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
