@@ -31,7 +31,7 @@ mongoose.connect(mongoURI)
 
 
 // Hàm tạo một chuỗi key ngẫu nhiên dài 16 ký tự
-export function generateKey() {
+function generateKey() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%^&*';
     let result = '';
     for (let i = 0; i < 16; i++) {
