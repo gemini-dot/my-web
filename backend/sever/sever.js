@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
-
+require('dotenv').config();
 
 // 1. Cấu hình Middleware
 app.use(express.json());
