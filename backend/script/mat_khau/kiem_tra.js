@@ -17,7 +17,8 @@ mongoose.connect(mongoURI)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now }
+    timestamp: { type: Date, default: Date.now },
+    key: { type: String, required: true }
 });
 const User = mongoose.model('User', UserSchema);
 

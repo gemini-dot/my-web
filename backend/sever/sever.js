@@ -17,7 +17,7 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
 require('dotenv').config();
-const { generateKey } = require('../script/phu_tro/tao_key/make_key');
+const { generateKey } = require('../script/phu_tro/tao_key/make_key.js');
 // 1. Cấu hình Middleware
 app.use(express.json());
 app.use(cors());
@@ -58,7 +58,7 @@ app.post('/api/save-account', async (req, res) => {
     }
 
     try {
-        const newUser = new User({ username, password, ipuser: userIP, key: makenewKey });
+        const newUser = new User({ username, password, ipuser: userIP});
         await newUser.save(); // Lưu trực tiếp lên đám mây
         console.log("💾 Đã lưu vào MongoDB:", username);
         res.status(200).send("userok");
