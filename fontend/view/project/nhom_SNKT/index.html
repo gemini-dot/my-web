@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nghệ An 1985: Hồi Ức 40 Năm Trước</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #F5F5F5;
+            color: #333;
+        }
+
+        /* Palette Variables for Reference (Applied via Tailwind Arbitrary values)
+           Red: #D32F2F
+           Yellow: #FBC02D
+           Teal: #00796B
+           Dark Blue: #1A237E
+        */
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+        .card-shadow:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Timeline vertical line */
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background-color: #D32F2F;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Header Section -->
+    <header class="bg-[#D32F2F] text-white py-12 px-4 shadow-lg">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-black uppercase tracking-wider mb-4">Nghệ An: 40 Năm Trước</h1>
+            <p class="text-xl md:text-2xl font-light text-[#FBC02D]">Một cái nhìn toàn cảnh về năm 1985 - Thời kỳ bao cấp</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-12">
+
+        <!-- Introduction / Context -->
+        <section class="bg-white rounded-lg p-8 card-shadow border-l-8 border-[#FBC02D]">
+            <h2 class="text-3xl font-bold text-[#1A237E] mb-4">Bối Cảnh Lịch Sử: 1985</h2>
+            <p class="text-gray-700 text-lg leading-relaxed">
+                Năm 1985 đánh dấu giai đoạn đỉnh điểm khó khăn của thời kỳ bao cấp trước khi bước vào Đổi Mới (1986). Tại Nghệ An, đời sống người dân gắn liền với sự thiếu thốn vật chất nhưng giàu tình làng nghĩa xóm. Đây là thời kỳ của tem phiếu, sổ gạo, và những chiếc xe đạp "Phượng Hoàng" quý hơn vàng. Bài phân tích này tái hiện chân thực bức tranh xã hội lúc bấy giờ.
+            </p>
+        </section>
+
+        <!-- Grid Layout for Charts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- Transport Section -->
+            <section class="bg-white rounded-lg p-6 card-shadow flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-2xl font-bold text-[#D32F2F] mb-2">Phương Tiện Di Chuyển</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Giao thông chủ yếu dựa vào sức người. Xe máy là tài sản khổng lồ, ô tô gần như không tồn tại trong dân sự.
+                    </p>
+                </div>
+                <!-- Visualization: Doughnut Chart -->
+                <div class="flex-grow flex items-center justify-center bg-gray-50 rounded-lg p-4">
+                    <div class="chart-container">
+                        <canvas id="transportChart"></canvas>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-sm text-gray-500 italic">
+                    Dữ liệu ước tính dựa trên thống kê xã hội học giai đoạn 1980-1985.
+                </div>
+            </section>
+
+            <!-- Home Life / Amenities Section -->
+            <section class="bg-white rounded-lg p-6 card-shadow flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-2xl font-bold text-[#00796B] mb-2">Tiện Nghi Gia Đình</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Điện lưới chưa phủ sóng rộng rãi. Các thiết bị điện tử là những món đồ xa xỉ phẩm hiếm hoi.
+                    </p>
+                </div>
+                <!-- Visualization: Horizontal Bar Chart -->
+                <div class="flex-grow flex items-center justify-center bg-gray-50 rounded-lg p-4">
+                    <div class="chart-container">
+                        <canvas id="amenitiesChart"></canvas>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-sm text-gray-500 italic">
+                    Tỷ lệ sở hữu trên mỗi 100 hộ gia đình (ước tính).
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Community Services & "Tem Phiếu" Section (Organize Goal) -->
+        <section class="bg-[#1A237E] text-white rounded-lg p-8 card-shadow">
+            <h3 class="text-3xl font-bold text-[#FBC02D] mb-6 text-center">Dịch Vụ Cộng Đồng & Đời Sống Bao Cấp</h3>
+            <p class="text-center text-gray-200 mb-8 max-w-3xl mx-auto">
+                Mọi nhu cầu thiết yếu đều được phân phối qua hệ thống mậu dịch quốc doanh. Tiền mặt ít có giá trị hơn tem phiếu.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white text-gray-800 p-6 rounded shadow-md border-t-4 border-[#D32F2F]">
+                    <div class="text-4xl mb-2 text-center">🎫</div>
+                    <h4 class="text-xl font-bold text-center mb-2">Tem Phiếu</h4>
+                    <ul class="text-sm space-y-2 list-disc pl-4">
+                        <li>Gạo: 13-21kg/tháng (tuỳ nghề)</li>
+                        <li>Thịt: 0.3 - 1kg/tháng</li>
+                        <li>Đường, sữa: Chỉ cho người ốm/trẻ em</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white text-gray-800 p-6 rounded shadow-md border-t-4 border-[#00796B]">
+                    <div class="text-4xl mb-2 text-center">💧</div>
+                    <h4 class="text-xl font-bold text-center mb-2">Nguồn Nước & Điện</h4>
+                    <ul class="text-sm space-y-2 list-disc pl-4">
+                        <li>Nước: Giếng khơi, bể nước mưa công cộng</li>
+                        <li>Điện: Cắt luân phiên, chủ yếu dùng đèn dầu</li>
+                        <li>Nấu ăn: Bếp trấu, mùn cưa, bếp dầu</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white text-gray-800 p-6 rounded shadow-md border-t-4 border-[#FBC02D]">
+                    <div class="text-4xl mb-2 text-center">📻</div>
+                    <h4 class="text-xl font-bold text-center mb-2">Văn Hóa & Tin Tức</h4>
+                    <ul class="text-sm space-y-2 list-disc pl-4">
+                        <li>Loa phường: Kênh tin tức chính</li>
+                        <li>Đài Radio (Cassette): Giải trí xa xỉ</li>
+                        <li>Rạp chiếu bóng bãi: Sinh hoạt cộng đồng</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Table Section (Compare Goal) -->
+        <section class="bg-white rounded-lg p-8 card-shadow">
+            <h3 class="text-2xl font-bold text-[#333] mb-6 border-b-2 border-gray-200 pb-2">Đối Chiếu: 1985 vs 2025</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-sm md:text-lg text-white bg-[#00796B]">
+                            <th class="p-4 rounded-tl-lg">Tiêu chí</th>
+                            <th class="p-4">Năm 1985 (Nghệ An)</th>
+                            <th class="p-4 rounded-tr-lg">Năm 2025 (Hiện tại)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm md:text-base text-gray-700">
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4 font-bold">Thu nhập</td>
+                            <td class="p-4">Quy đổi gạo/hiện vật, đói kém</td>
+                            <td class="p-4">Đa dạng, kinh tế số, công nghiệp</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4 font-bold">Giáo dục</td>
+                            <td class="p-4">Thiếu sách vở, viết bút mực bơm</td>
+                            <td class="p-4">Trường chuẩn quốc gia, học trực tuyến</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4 font-bold">Y tế</td>
+                            <td class="p-4">Trạm xá xã, thuốc nam, khan hiếm kháng sinh</td>
+                            <td class="p-4">Bệnh viện đa khoa hiện đại, bảo hiểm y tế</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-bold">Nhà ở</td>
+                            <td class="p-4">Nhà tranh, vách đất, tập thể chật chội</td>
+                            <td class="p-4">Nhà kiên cố, chung cư cao tầng, biệt thự</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Occupation Structure (Chart 3) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white rounded-lg p-6 card-shadow">
+            <div class="p-4">
+                <h3 class="text-2xl font-bold text-[#D32F2F] mb-4">Cơ Cấu Lao Động (1985)</h3>
+                <p class="text-gray-700 mb-4">
+                    Nghệ An 40 năm trước là một tỉnh thuần nông. Công nghiệp gần như chưa phát triển, chủ yếu là các hợp tác xã tiểu thủ công nghiệp quy mô nhỏ.
+                </p>
+                <ul class="space-y-2 mt-4">
+                    <li class="flex items-center"><span class="w-4 h-4 bg-[#FBC02D] mr-2 inline-block rounded"></span> Nông nghiệp: 85%</li>
+                    <li class="flex items-center"><span class="w-4 h-4 bg-[#1A237E] mr-2 inline-block rounded"></span> Công nhân/Viên chức: 10%</li>
+                    <li class="flex items-center"><span class="w-4 h-4 bg-[#00796B] mr-2 inline-block rounded"></span> Buôn bán nhỏ/Khác: 5%</li>
+                </ul>
+            </div>
+            <div class="flex-grow flex items-center justify-center p-4">
+                <div class="chart-container">
+                    <canvas id="jobChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <footer class="text-center py-10 bg-[#333] text-white rounded-lg mt-8">
+            <h2 class="text-2xl font-bold text-[#FBC02D] mb-4">Kết Luận</h2>
+            <p class="max-w-3xl mx-auto px-4 text-gray-300">
+                Nhìn lại Nghệ An 40 năm trước không chỉ để thấy sự thiếu thốn, mà để trân trọng ý chí vươn lên của người dân xứ Nghệ. Từ những bếp than, mái lá và chiếc xe đạp cũ, một Nghệ An hiện đại đã hình thành, chứng minh sức sống mãnh liệt qua thời gian.
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- Script to Generate Charts -->
+    <script>
+        // Helper function to split long labels for Chart.js
+        function splitLabel(label) {
+            if (label.length > 16) {
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+
+                for (let i = 1; i < words.length; i++) {
+                    if ((currentLine + " " + words[i]).length < 16) {
+                        currentLine += " " + words[i];
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            }
+            return label;
+        }
+
+        // Shared Tooltip Config
+        const tooltipConfig = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // Chart 1: Means of Transport (Doughnut)
+        const ctxTransport = document.getElementById('transportChart').getContext('2d');
+        new Chart(ctxTransport, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đi bộ', 'Xe đạp', 'Xe bò/ngựa', 'Xe máy/Ô tô'].map(splitLabel),
+                datasets: [{
+                    data: [65, 25, 8, 2],
+                    backgroundColor: ['#D32F2F', '#FBC02D', '#00796B', '#1A237E'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: tooltipConfig,
+                    title: {
+                        display: true,
+                        text: 'Tỷ lệ phương tiện di chuyển chính',
+                        font: { size: 16 }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Home Life Amenities (Bar)
+        const ctxAmenities = document.getElementById('amenitiesChart').getContext('2d');
+        new Chart(ctxAmenities, {
+            type: 'bar',
+            data: {
+                labels: ['Đài Radio/Cassette', 'Xe đạp', 'Máy khâu', 'Quạt điện', 'TV Đen trắng'].map(splitLabel),
+                datasets: [{
+                    label: '% Hộ gia đình sở hữu',
+                    data: [45, 30, 15, 10, 2],
+                    backgroundColor: '#00796B',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal bar
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipConfig
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Phần trăm (%)' }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Jobs (Pie)
+        const ctxJob = document.getElementById('jobChart').getContext('2d');
+        new Chart(ctxJob, {
+            type: 'pie',
+            data: {
+                labels: ['Nông nghiệp', 'Công nhân/Viên chức', 'Tiểu thương/Khác'].map(splitLabel),
+                datasets: [{
+                    data: [85, 10, 5],
+                    backgroundColor: ['#FBC02D', '#1A237E', '#D32F2F'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    tooltip: tooltipConfig
+                }
+            }
+        });
+    </script>
+</body>
+</html>

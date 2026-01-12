@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    background-color: black;
+    overflow: hidden;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.half {
+    height: 50vh; /* Chia đôi màn hình */
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.top { align-items: flex-end; }   /* Chạm đáy nửa trên */
+.bottom { align-items: flex-start; } /* Chạm đỉnh nửa dưới */
+
+.mask-text {
+    font-family: 'Anton', sans-serif;
+    font-size: 25vw; /* Cho to ra tí nhìn mới ngầu */
+    margin: 0;
+    line-height: 0.8; /* Thu hẹp khoảng cách dòng để 2 nửa khít nhau */
+    text-transform: uppercase;
+    
+    background-image: url('https://mameviet.com/wp-content/uploads/2022/02/1973_hanoi-1536x1035.jpg');
+    background-size: cover;
+    background-position: center;
+    
+    /* CHIÊU QUYẾT ĐỊNH NÈ */
+    background-attachment: fixed; 
+    
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}

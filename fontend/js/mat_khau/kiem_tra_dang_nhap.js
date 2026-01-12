@@ -28,7 +28,7 @@ async function kiemTra() {
                 window.location.href = '../../view/admin_dashboard/admindashboard.html';
             } else if (data === "OK") {
                 alert("Đăng nhập thành công!");
-                window.location.href = '../../index.html';
+                window.location.href = '../nhom_SNKT/index.html';
             }
         } else {
             userElement.classList.add("hieu-ung-sai");

@@ -1,3 +1,16 @@
+//Gửi người anh em Lập trình:
+//Lúc tui viết đống code này,
+//chỉ có Chúa với tui là hiểu nó chạy kiểu gì.
+//Giờ thì ... xin chia buồn,
+//chỉ còn mỗi Chúa hiểu thôi.
+//
+//Nên nếu bro đang cố tối ưu
+//cái mớ này và nó toang (99% Là vậy),
+//thì làm ơn tăng cái biến đếm này Lên
+//để người xui xẻo tiếp theo còn biết đường chạy:
+//
+//total_hours_wasted_here = 0 
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -9,7 +22,7 @@ require('dotenv').config();
 app.use(express.json());
 app.use(cors());
 
-// 2. Kết nối MongoDB (THAY LINK CỦA OG VÀO ĐÂY)
+// 2. Kết nối MongoDB
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
