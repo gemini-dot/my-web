@@ -7,4 +7,3 @@ export function generateKey() {
     }
     return result;
 }
-module.exports = { generateKey };
