@@ -9,15 +9,15 @@
 //thì làm ơn tăng cái biến đếm này Lên
 //để người xui xẻo tiếp theo còn biết đường chạy:
 //
-//total_hours_wasted_here = 1 
-
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+import express from 'express'; // Thay require bằng import
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { generateKey } from '../script/phu_tro/tao_key/make_key.js';
 const app = express();
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
 require('dotenv').config();
-import { generateKey } from '../script/phu_tro/tao_key/make_key.js';
+
 // 1. Cấu hình Middleware
 app.use(express.json());
 app.use(cors());
