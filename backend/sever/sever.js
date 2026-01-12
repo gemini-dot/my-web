@@ -27,8 +27,15 @@ const User = mongoose.model('User', UserSchema);
 
 // 4. API lưu tài khoản
 app.post('/api/save-account', async (req, res) => {
-    const userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log("có người truy cập từ IP:", userIP);
+    let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    // Nếu IP là danh sách (ví dụ: 192.168.1.1, 10.0.0.1) thì chỉ lấy cái đầu tiên
+    if (userIP && userIP.includes(',')) {
+        userIP = userIP.split(',')[0].trim();
+    }
+    // Nếu vẫn không lấy được thì để mặc định, tránh lỗi database
+    if (!userIP) {
+        userIP = "Không xác định";
+    }
     const { username, password } = req.body;
 
     if (!username || !password) {
