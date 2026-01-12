@@ -81,6 +81,7 @@ body {
     flex: 1;
 }
 
+
 /* Thanh tiến trình nằm bên trong khung trắng, bên phải form */
 .progress-container {
     display: flex;
@@ -96,7 +97,7 @@ body {
 /* Đường ray xám */
 .progress-container::before {
     content: "";
-    background-color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.1); 
     position: absolute;
     top: 50px;
     left: 50%;
@@ -104,11 +105,14 @@ body {
     width: 4px;
     height: 140px;
     z-index: 1;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: none;
 }   
 
 /* Thanh xanh chạy theo JS */
 .progress-bar {
-    background-color: #3498db;
+    background-color: var(--mau-nhan6, #00ffff);
     position: absolute;
     top: 30px;
     left: 50%;
@@ -117,22 +121,27 @@ body {
     height: 0%; 
     z-index: 2;
     transition: 0.4s ease;
+    display: none;
+    
 }
 
 /* Các vòng tròn số */
 .dot {
     width: 18px;
     height: 18px;
-    background-color: rgb(50, 48, 48);
-    border: 3px solid #e0e0e0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;    
     z-index: 3;
     font-weight: bold;
-    color: #999;
+    color: rgba(255, 255, 255, 0.4);
     transition: 0.4s;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), 
+                2px 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Khi cái dot được kích hoạt (active) */
@@ -337,3 +346,29 @@ body {
     user-select: none;         /* Chuẩn chung */
 }
 
+.nut-bam {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1); /* Hơi trong suốt cho hợp tone kính */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white; /* Cho chữ trắng nhìn cho sang */
+    outline: none;
+    margin-bottom: 0;
+    position: relative; /* Quan trọng: Làm điểm tựa cho mảng sáng */
+    overflow: hidden;    /* Quan trọng: Cắt bỏ phần mảng sáng thừa ở ngoài */
+    cursor: pointer;
+    transition: 0.3s; 
+}
+
+.nut-bam:hover::before {
+    left: 150%; /* Chạy vọt sang bên phải */
+    transition: 0.7s; /* Tốc độ bóng chạy qua */
+}
+
+/* Thêm hiệu ứng cho cái nút sáng hơn tí khi hover */
+.nut-bam:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}

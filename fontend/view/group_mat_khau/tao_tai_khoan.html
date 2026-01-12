@@ -1,11 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>tạo tài khoản</title>
+    <link rel="stylesheet" href="../../css/pass/tao_tai_khoan.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/logo/girl.jpg">
 </head>
-<body>
-    
+<body id="main-body">
+    <div class="pop-up">
+        <p>tạo xong mật khẩu rồi!</p>
+    </div>
+    <div class="avatar-container">
+        <img id="hinhgai" src="../../assets/logo/girl.jpg" alt="em đúng xinh vl" title="em xinh quáaaaa">
+    </div>
+    <form onsubmit="return false;" method="POST">
+        <div class="anh-nen-mo"></div>
+        <div class="o-tong">
+            <div class="the-dang-nhap">
+                <div class="form-content">
+                    <div class="khung1">
+                        <input id="username" type="text" class="o-dang-nhap" required>
+                        <label class="nhan-bay">Nhập tên của bạn...</label>
+                    </div>
+                    <div class="khung2">    
+                        <input type="password" id="password" class="o-dang-nhap" required>
+                        <label class="nhan-bay">Nhập mật khẩu...</label>
+                    </div>
+                    <button type="button" class="nut-bam" onclick="kiemTra2()">Tạo tài khoản</button>
+                    <button onclick="window.location.href='../../view/group_mat_khau/login.html'" type="button" class="quen-mat-khau">Bạn đã có tài khoản</button>
+                </div>
+                <div class="lol">
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                        <div class="dot active">1</div>
+                        <div class="dot">2</div>
+                        <div class="dot">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="../../js/chuc_nang/language.js"></script>
+    <script src="../../js/mat_khau/mat_khau.js"></script>
+    <script src="../../js/chuc_nang/doi_background.js"></script> 
+    <script src="../../js/mat_khau/do_manh_cua_pass.js"></script>
+    <script src="../../js/chuc_nang/norightclick.js"></script>
 </body>
 </html>

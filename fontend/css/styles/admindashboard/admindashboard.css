@@ -1,0 +1,42 @@
+/* Làm cho toàn bộ trang web chiếm hết chiều cao màn hình */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center;     /* Căn giữa theo chiều dọc */
+    min-height: 100vh;
+    background-image: url('https://wallpaperaccess.com/full/1393335.jpg'); /* Thêm cái nền cho dễ thấy hiệu ứng blur */
+    background-size: cover;
+    background-position: center;
+}
+
+.hinh-chu-nhat {
+    /* Màu nền đen trong suốt */
+    background-color: rgba(0, 0, 0, 0.6); 
+    
+    /* Hiệu ứng làm mờ hậu cảnh (Glassmorphism) */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Hỗ trợ cho Safari */
+    
+    /* Bo góc và đổ bóng cho pro */
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    
+    /* Viền trắng mờ để tạo cảm giác sang trọng */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* Giới hạn độ rộng của ô */
+    max-width: 80%;
+    text-align: center;
+}
+
+h1 {
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}

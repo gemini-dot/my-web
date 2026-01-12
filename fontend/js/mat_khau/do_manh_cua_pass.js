@@ -2,6 +2,11 @@ function kiemTra2() {
     let pass = document.getElementById("password").value;
     let user = document.getElementById("username").value;
     let diem = 0;
+    let userElement = document.getElementById("username");
+    let passElement = document.getElementById("password");
+    userElement.classList.remove("hieu-ung-sai");
+    passElement.classList.remove("hieu-ung-sai");
+    void userElement.offsetWidth; 
 
     // --- Chấm điểm ---
     if (pass.length >= 8) diem++;
@@ -11,13 +16,16 @@ function kiemTra2() {
     if (/[@$!%*?&]/.test(pass)) diem++;
 
     // --- Kiểm tra cơ bản ---
-    if (pass === "") {
-        alert("chưa nhập mật khẩu mà! Nhập đi.");
+    if (pass === "" || user === "") {
+        alert("chưa nhập mật khẩu hoặc tên người dùng mà! Nhập đi.");
+        userElement.classList.add("hieu-ung-sai");
+        passElement.classList.add("hieu-ung-sai");
         return;
     }
 
     if (diem <= 2) {
         alert("Yếu quá! Thêm số và chữ hoa vào cho chắc nhé.");
+        passElement.classList.add("hieu-ung-sai");
         return;
     }
 

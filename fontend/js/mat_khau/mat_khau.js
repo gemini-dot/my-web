@@ -7,10 +7,10 @@ function updateProgress() {
     let progress = 0;
     if (oTen.value.length === 0 && oMatKhau.value.length === 0) {
         progress = 0;
-        dots[0].classList.remove('active');
         dots[1].classList.remove('active');
         dots[2].classList.remove('active');
     }
+    
     if (oTen.value.length > 0 || oMatKhau.value.length > 0) {
         progress = 50; // 1/2
         dots[0].classList.add('active');

