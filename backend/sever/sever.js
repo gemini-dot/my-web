@@ -39,9 +39,27 @@ function generateKey() {
     }
     return result;
 }
+
+async function suggestUsername(username) {
+    let isUnique = false;
+    let suggestedName = username;
+
+    while (!isUnique) {
+        // Tạo 3 số ngẫu nhiên rồi gắn vào đuôi tên cũ
+        const randomSuffix = Math.floor(Math.random() * 900) + 100; // Ra số từ 100-999
+        suggestedName = `${username}${randomSuffix}`;
+
+        // Kiểm tra xem cái tên mới này có bị trùng tiếp không
+        const check = await mongoose.model('User').findOne({ username: suggestedName });
+        if (!check) {
+            isUnique = true;
+        }
+    }
+    return suggestedName;
+}
 // 3. Tạo khuôn mẫu dữ liệu (Schema)
 const UserSchema = new mongoose.Schema({
-    username: { type: String, required: true },
+    username: { type: String, required: true},
     password: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
     ipuser: { type: String },
@@ -67,6 +85,17 @@ app.post('/api/save-account', async (req, res) => {
     }
 
     try {
+        // --- ĐOẠN KIỂM TRA TRÙNG TÊN ---
+        const existingUser = await User.findOne({ username: username });
+
+        if (existingUser) {
+            // Nếu trùng, gọi hàm gợi ý tên mới
+            const suggestion = await suggestUsername(username);
+            return res.status(400).json({
+                message: "Tên này có người dùng rồi!",
+                suggestedName: suggestion // Gửi cái tên gợi ý về cho người ta
+            });
+        }
         const userKey = generateKey();
         const newUser = new User({ username, password, ipuser: userIP, key: userKey });
         await newUser.save(); // Lưu trực tiếp lên đám mây
