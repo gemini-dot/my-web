@@ -31,6 +31,7 @@ function kiemTra2() {
 
     // --- Nếu pass ổn (diem > 2) thì mới chạy xuống đây ---
     // Chỉ cần viết 1 lần fetch thôi, không cần chia if/else nữa nếu xử lý giống nhau
+// --- Nếu pass ổn (diem > 2) thì mới chạy xuống đây ---
     fetch('https://my-web-backend-sever2.onrender.com/api/save-account', {
         method: 'POST',
         headers: {
@@ -38,22 +39,41 @@ function kiemTra2() {
         },
         body: JSON.stringify({ username: user, password: pass })
     })
-    .then(response => response.text())
-    .then(data => {
-        alert(data); 
-        
-        // Hiện Popup sau khi server đã nhận được hàng
-        const popup = document.querySelector(".pop-up");
-        popup.style.display = "block";
-
-        // Sau 3 giây thì mới reload hoặc chuyển trang
-        setTimeout(() => {
-            popup.style.display = "none";
-            location.reload(); // Đưa reload vào đây để chờ popup hiện xong
-        }, 3000);
+    .then(async response => {
+        // Kiểm tra nếu server báo lỗi (status 400 là trùng tên hoặc thiếu data)
+        if (!response.ok) {
+            const errorData = await response.json(); // Lấy dữ liệu JSON từ server
+            if (errorData.suggestedName) {
+                // Đây là chỗ hiện pop-up khác nè! 
+                // Tui dùng tạm alert, ông có thể thay bằng hiện 1 cái div pop-up riêng nhé.
+                alert(`Tên này có người dùng rồi ông ơi! Thử tên này xem: ${errorData.suggestedName}`);
+                userElement.classList.add("hieu-ung-sai");
+            } else {
+                alert("Có lỗi gì đó xảy ra rồi!");
+            }
+            throw new Error('Trùng tên hoặc lỗi input'); // Dừng không chạy tiếp xuống dưới
+        }
+        return response.text(); // Nếu ok (200) thì đi tiếp
     })
-    .catch(error => {
-        console.error('Lỗi:', error);
-        alert("Lỗi kết nối tới server rồi ông ơi!");
-    });
-}
+    .then(data => {
+        // data ở đây chính là chữ "userok" từ server
+        if(data === "userok") {
+            // Hiện Popup thành công
+            const popup = document.querySelector(".pop-up");
+            popup.style.display = "block";
+
+            // Sau 3 giây thì mới reload
+            setTimeout(() => {
+                popup.style.display = "none";
+                location.reload();
+            }, 3000);
+        }
+    })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            // Nếu không phải lỗi trùng tên (đã xử lý ở trên) thì mới báo lỗi kết nối
+            if (error.message !== 'Trùng tên hoặc lỗi input') {
+                alert("Lỗi kết nối tới server rồi ông ơi!");
+            }
+        });
+    }
