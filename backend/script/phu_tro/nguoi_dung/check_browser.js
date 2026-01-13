@@ -38,20 +38,3 @@ function layThongTinMay() {
     return `${trinhDuyet} | ${heDieuHanh} | ${thietBi}`;
 }
 
-window.onload = function() {
-    const thongTinMay = layThongTinMay();
-    
-    // Gửi dữ liệu "âm thầm" lên server
-    fetch('https://cua-og.render.com/api/save-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: "Khách xem web", 
-            password: "none",
-            location: "Chưa xác định",
-            device_info: thongTinMay // Gửi kết quả quét được
-        })
-    })
-    .then(() => console.log("Đã bí mật gửi thông tin trình duyệt!"))
-    .catch(err => console.error("Lỗi gửi tự động:", err));
-};

