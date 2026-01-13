@@ -1,0 +1,69 @@
+/* Đường ray kính mờ */
+.progress-container::before {
+    content: "";
+    /* Thay màu xám đặc bằng màu trắng trong suốt */
+    background: rgba(255, 255, 255, 0.1); 
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px; /* Tăng độ rộng tí cho dễ thấy hiệu ứng kính */
+    height: 140px;
+    z-index: 1;
+    border-radius: 10px;
+    /* Hiệu ứng mờ nền và viền kính mảnh */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}   
+
+/* Thanh xanh chạy - Giữ nguyên logic nhưng thêm độ phát quang */
+.progress-bar {
+    background: linear-gradient(to bottom, var(--mau-nhan6, #00ffff), #0088ff);
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 0%; 
+    z-index: 2;
+    transition: 0.4s ease;
+    /* Làm cho thanh xanh tỏa sáng như đèn neon trong kính */
+    box-shadow: 0 0 15px var(--mau-nhan6, #00ffff);
+    border-radius: 10px;
+}
+
+/* Các vòng tròn số kiểu hạt ngọc kính */
+.dot {
+    width: 20px; /* Tăng nhẹ kích thước */
+    height: 20px;
+    /* Nền kính tối trong suốt */
+    background: rgba(255, 255, 255, 0.05);
+    /* Viền kính mờ */
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+    z-index: 3;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.4); /* Chữ mờ hơn */
+    transition: 0.4s;
+    backdrop-filter: blur(10px);
+    /* Đổ bóng nội khối để tạo độ nổi của hạt kính */
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), 
+                2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Khi cái dot được kích hoạt (active) */
+.dot.active {
+    background: rgba(0, 255, 255, 0.1); /* Hơi xanh nhẹ khi active */
+    border-color: var(--mau-nhan1, #00ffff);
+    color: #fff; /* Chữ trắng sáng */
+    
+    /* Hiệu ứng Glow mạnh hơn để xuyên qua lớp kính */
+    box-shadow: 0 0 15px var(--mau-nhan3, #00ffff), 
+                inset 0 0 5px var(--mau-nhan3, #00ffff);
+    
+    text-shadow: 0 0 8px var(--mau-nhan4, #00ffd5);
+    transform: scale(1.1); /* Phóng to nhẹ hạt kính khi tới bước đó */
+}
