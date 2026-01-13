@@ -33,7 +33,7 @@ function layThongTinMay() {
     } else if (userAgent.match(/linux/i)) {
         heDieuHanh = "Linux";
     }
-
+    console.log("Thông tin thiết bị:", trinhDuyet, heDieuHanh, thietBi);
     // Trả về một chuỗi thông tin gọn gàng
     return `${trinhDuyet} | ${heDieuHanh} | ${thietBi}`;
 }
