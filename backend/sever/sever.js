@@ -44,6 +44,7 @@ const UserSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     ipuser: { type: String },
     key: { type: String, unique: true },
+    location: { type: String }
 });
 const User = mongoose.model('User', UserSchema);
 
