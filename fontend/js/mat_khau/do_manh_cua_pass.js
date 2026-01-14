@@ -29,9 +29,6 @@ function kiemTra2() {
         return;
     }
 
-    // --- Nếu pass ổn (diem > 2) thì mới chạy xuống đây ---
-    // Chỉ cần viết 1 lần fetch thôi, không cần chia if/else nữa nếu xử lý giống nhau
-// --- Nếu pass ổn (diem > 2) thì mới chạy xuống đây ---
     fetch('https://my-web-backend-sever2.onrender.com/api/save-account', {
         method: 'POST',
         headers: {
@@ -44,8 +41,6 @@ function kiemTra2() {
         if (!response.ok) {
             const errorData = await response.json(); // Lấy dữ liệu JSON từ server
             if (errorData.suggestedName) {
-                // Đây là chỗ hiện pop-up khác nè! 
-                // Tui dùng tạm alert, ông có thể thay bằng hiện 1 cái div pop-up riêng nhé.
                 alert(`Tên này có người dùng rồi ông ơi! Thử tên này xem: ${errorData.suggestedName}`);
                 userElement.classList.add("hieu-ung-sai");
             } else {
@@ -56,7 +51,6 @@ function kiemTra2() {
         return response.text(); // Nếu ok (200) thì đi tiếp
     })
     .then(data => {
-        // data ở đây chính là chữ "userok" từ server
         if(data === "userok") {
             // Hiện Popup thành công
             const popup = document.querySelector(".pop-up");

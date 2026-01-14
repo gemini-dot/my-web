@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 
-// 1. Phải dùng chung link và chung kho 'myDatabase'
+
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
@@ -32,7 +32,6 @@ app.post('/api/login', async (req, res) => {
     }
 
     try {
-        // ĐÂY NÈ OG: Lệnh lấy thông tin từ kho
         const user = await User.findOne({ username: username, password: password });
 
         if (user) {

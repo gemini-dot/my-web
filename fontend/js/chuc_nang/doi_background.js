@@ -1,6 +1,5 @@
-// 1. Lấy đúng cái body để đổi background
+
 const manHinh = document.getElementById('main-body');
-// 2. Lấy cái ảnh avatar để làm "nút bấm" kích hoạt
 const nutBamDoi = document.getElementById('hinhgai');
 
 const anhGoc = '../../assets/backgroud/11369500.jpg';
@@ -8,7 +7,7 @@ const anhMoi = '../../assets/backgroud/gargantua-black-3840x2160-9621.jpg';
 
 let laAnhGoc = true;
 
-// Og muốn click vào cái ảnh avatar (hinhgai) để đổi nền đúng không?
+
 nutBamDoi.addEventListener('click', function() {
     if (laAnhGoc) {
         // Đổi background cho toàn màn hình
