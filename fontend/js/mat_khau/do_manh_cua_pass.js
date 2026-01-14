@@ -76,4 +76,4 @@ function kiemTra2() {
                 alert("Lỗi kết nối tới server rồi ông ơi!");
             }
         });
-    }
+}
