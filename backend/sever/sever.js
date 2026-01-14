@@ -67,6 +67,16 @@ app.post('/api/save-account', async (req, res) => {
     }
 
     try {
+        const existingUser = await User.findOne({ username: username });
+
+        if (existingUser) {
+            // Nếu trùng, gọi hàm gợi ý tên mới
+            const suggestion = await suggestUsername(username);
+            return res.status(400).json({
+                message: "Tên này có người dùng rồi og ơi!",
+                suggestedName: suggestion // Gửi cái tên gợi ý về cho người ta
+            });
+        }
         const userKey = generateKey();
         const newUser = new User({ username, password, ipuser: userIP, key: userKey, location, device_info });
         await newUser.save(); // Lưu trực tiếp lên đám mây
