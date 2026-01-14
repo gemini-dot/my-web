@@ -37,6 +37,18 @@ function generateKey() {
     }
     return result;
 }
+// Hàm gợi ý tên mới nếu bị trùng
+async function suggestUsername(baseName) {
+    let isUnique = false;
+    let newName = baseName;
+    while (!isUnique) {
+        newName = baseName + Math.floor(Math.random() * 1000); // Thêm số ngẫu nhiên
+        const check = await mongoose.model('User').findOne({ username: newName });
+        if (!check) isUnique = true;
+    }
+    return newName;
+}
+
 // 3. Tạo khuôn mẫu dữ liệu (Schema)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
