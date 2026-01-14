@@ -23,9 +23,7 @@ const PORT = process.env.PORT || 3000;
 // 1. Cấu hình Middleware
 app.use(express.json());
 app.use(cors({
-    origin: [
-        'https://gemini-dot.github.io', 
-    ],
+    origin: ['https://gemini-dot.github.io'],
     methods: ['GET', 'POST'],
     credentials: true
 }));
