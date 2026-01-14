@@ -25,7 +25,6 @@ app.use(express.json());
 app.use(cors({
     origin: [
         'https://gemini-dot.github.io', 
-        'https://my-web-ag2.pages.dev'
     ],
     methods: ['GET', 'POST'],
     credentials: true
