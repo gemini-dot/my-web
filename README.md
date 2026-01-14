@@ -1,2 +1,2 @@
-# my-web
-dự án web của NONE(bí danh)
+#my-web
+©14/1/2026 by LaiVanSam. No copyright

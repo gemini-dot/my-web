@@ -2,10 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
+const nodemailer = require('nodemailer');
+
 const PORT = 5000;
 
 app.use(express.json());
 app.use(cors());
+
 
 // 1. Phải dùng chung link và chung kho 'myDatabase'
 const mongoURI = process.env.MONGO_URI;

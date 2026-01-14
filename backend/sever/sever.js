@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors({
     origin: [
-        'https://gemini-dot.github.io/my-web/', 
+        'https://gemini-dot.github.io', 
         'https://my-web-ag2.pages.dev/'
     ],
     methods: ['GET', 'POST'],

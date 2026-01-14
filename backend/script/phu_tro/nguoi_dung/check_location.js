@@ -55,7 +55,7 @@ function dangKy() {
 function guiDuLieu(data) {
     console.log('📤 Đang gửi dữ liệu:', data);
     
-    fetch('https://cua-og.render.com/api/save-account', {
+    fetch('https://my-web-backend-sever2.onrender.com/api/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
