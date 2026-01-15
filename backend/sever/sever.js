@@ -10,7 +10,9 @@
 //để người xui xẻo tiếp theo còn biết đường chạy:
 //
 //total_hours_wasted_here = 0 
-
+const multer = require('multer'); // Thêm ông thần này
+const fs = require('fs');         // Thêm ông thần này để tạo folder
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -26,8 +28,8 @@ app.use(cors());
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
-    .then(() => console.log("✅ Đã kết nối MongoDB thành công!"))
-    .catch(err => console.error("❌ Lỗi kết nối MongoDB:", err));
+    .then(() => console.log("Đã kết nối MongoDB thành công!"))
+    .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 // Hàm tạo một chuỗi key ngẫu nhiên dài 16 ký tự
 function generateKey() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%^&*';
@@ -61,6 +63,50 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // Lấy username từ body gửi lên
+        const user = req.query.username || "khach_vang_lai"; 
+        
+        const uploadDir = path.join(__dirname, 'uploads', user);
+
+        // Kiểm tra nếu folder chưa có thì tạo mới (recursive: true là tạo cả folder cha nếu thiếu)
+        if (!fs.existsSync(uploadDir)){
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        cb(null, uploadDir); // Lưu file vào folder này
+    },
+    filename: function (req, file, cb) {
+        // Đặt tên file: timestamp-tenfilegoc
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+app.post('/api/upload', upload.single('fileUpload'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "Chưa chọn file hoặc lỗi file!" });
+        }
+        
+        // Trả về đường dẫn file cho client xem
+        // Lưu ý: Ông cần cấu hình express.static để xem được file này trên web
+        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.body.username}/${req.file.filename}`;
+        
+        res.status(200).json({ 
+            message: "Upload thành công vào kho riêng!", 
+            fileUrl: fileUrl 
+        });
+        
+    } catch (error) {
+        console.error("Lỗi server:", error);
+        res.status(500).json({ error: "Lỗi Server rồi ông giáo ạ!" });
+    }
+});
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // 4. API lưu tài khoản
 app.post('/api/save-account', async (req, res) => {
     let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
@@ -97,6 +143,8 @@ app.post('/api/save-account', async (req, res) => {
         res.status(500).send("badsever");
     }
 });
+
+
 
 app.listen(PORT, () => {
     console.log(`🚀 Server online tại port: ${PORT}`);

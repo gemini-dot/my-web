@@ -13,27 +13,27 @@ async function kiemTra() {
         return;
     }
     try {
-        // Gọi thẳng đến server cổng 5000 - nơi xử lý cả Admin và User
-        const response = await fetch('https://my-web-backend-sever.onrender.com/api/login', { // Đổi save-account thành login
+        const response = await fetch('https://my-web-backend-sever.onrender.com/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: user, password: pass })
         });
 
-        const data = await response.text();
+        const data = await response.json();
 
         if (response.ok) {
             if (data === "ADMIN_OK") {
-                alert("Chào Sếp! Đang vào trang Admin... 👑");
+                alert("Chào Sếp! Đang vào trang Admin...");
                 window.location.href = '../../view/admin_dashboard/admindashboard.html';
             } else if (data === "OK") {
                 alert("Đăng nhập thành công!");
+                localStorage.setItem("currentUser", data.userId);
                 window.location.href = '../../view/project/nhom_SNKT/index.html';
             }
         } else {
             userElement.classList.add("hieu-ung-sai");
             passElement.classList.add("hieu-ung-sai");
-            alert("Sai tài khoản hoặc mật khẩu rồi og ơi!");
+            alert("Sai tài khoản hoặc mật khẩu rồi bạn ơi!");
         }
 
     } catch (error) {

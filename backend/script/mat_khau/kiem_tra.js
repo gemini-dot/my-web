@@ -36,7 +36,7 @@ app.post('/api/login', async (req, res) => {
 
         if (user) {
             console.log("🔓 Đăng nhập khớp:", username);
-            res.send("OK"); 
+            res.send({ status: "OK", userId: user.username });
         } else {
             console.log("🚫 Không tìm thấy tài khoản!");
             res.status(401).send("Sai thông tin!");

@@ -1,13 +1,20 @@
-// upload-client.js - Thêm file này vào HTML của bạn
-
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('fileUpload');
     const submitButton = uploadForm.querySelector('button[type="submit"]');
+    // 1. KIỂM TRA ĐĂNG NHẬP (Chống vượt rào)
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+        alert("Ê chưa đăng nhập mà đòi upload hả? Quay lại đăng nhập đi!");
+        window.location.href = '../../view/group_mat_khau/login.html'; // Đường dẫn về trang login của ông
+        return;
+    }
+    console.log("Đang upload với tư cách:", currentUser);
+    
 
     uploadForm.addEventListener('submit', async function(e) {
         e.preventDefault(); // Ngăn form submit theo cách thông thường
-
+        
         // Kiểm tra xem đã chọn file chưa
         if (!fileInput.files || fileInput.files.length === 0) {
             showMessage('Vui lòng chọn file trước khi upload!', 'error');
@@ -25,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tạo FormData để gửi file
         const formData = new FormData();
         formData.append('fileUpload', file);
+        formData.append('username', currentUser);
 
         // Hiển thị trạng thái đang upload
         submitButton.disabled = true;
@@ -32,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // Gửi request đến server
-            const response = await fetch('http://localhost:3000/api/upload', {
+            const response = await fetch(`http://localhost:3000/api/upload?userId=${currentUser}`, {
                 method: 'POST',
                 body: formData
             });
