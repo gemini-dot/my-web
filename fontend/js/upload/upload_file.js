@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // Gửi request đến server
-            const response = await fetch(`http://localhost:3000/api/upload?userId=${currentUser}`, {
+            const response = await fetch(`https://my-web-backend-sever3.onrender.com/api/upload?userId=${currentUser}`, {
                 method: 'POST',
                 body: formData
             });
