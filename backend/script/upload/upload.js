@@ -5,6 +5,7 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 
+cloudinary.config();
 const app = express();
 
 // 1. Cho phép server chính của ông gọi vào server này
@@ -17,10 +18,14 @@ app.use(express.static('public'));
 // 3. Cấu hình nơi lưu trữ
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'tai_lieu_cua_tui',
-    resource_type: 'raw', // Quan trọng nhất để giữ định dạng file
-    // Bỏ dòng format: 'html' đi nhé
+  params: async (req, file) => {
+    // Lấy userId từ header hoặc query mà client gửi lên
+    const userId = req.query.userId || 'guest'; 
+    return {
+      folder: `user_uploads/${userId}`, // Mỗi ông một thư mục riêng!
+      resource_type: 'raw',
+      public_id: file.originalname.split('.')[0] // Giữ tên file gốc
+    };
   },
 });
 
