@@ -8,17 +8,14 @@ const multer = require('multer');
 cloudinary.config();
 const app = express();
 
-// 1. Cho phép server chính của ông gọi vào server này
+// 1. Cho phép server chính gọi vào server upload
 app.use(cors({
-    origin: 'https://my-web-ag2.pages.dev', // Link trang web frontend của ông
+    origin: 'https://my-web-ag2.pages.dev',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
 
 app.use(express.static('public'));
-
-// 2. Không cần config lẻ tẻ nữa, Cloudinary tự tìm CLOUDINARY_URL trong .env
-// Nó sẽ tự động kết nối bằng cái link dài ngoằng ông vừa hỏi đó.
 
 // 3. Cấu hình nơi lưu trữ
 const storage = new CloudinaryStorage({
@@ -30,14 +27,14 @@ const storage = new CloudinaryStorage({
 
     // 2. Dọn dẹp tên file: Bỏ đuôi .html và thay khoảng trắng/ngoặc bằng dấu gạch dưới
     const cleanFileName = file.originalname
-      .split('.')[0]               // Bỏ đuôi .html
-      .replace(/\s+/g, '_')        // Thay khoảng trắng thành _
-      .replace(/[^a-zA-Z0-9_]/g, ''); // Bỏ hết ký tự đặc biệt như ( )
+      .split('.')[0]              
+      .replace(/\s+/g, '_')       
+      .replace(/[^a-zA-Z0-9_]/g, '');
 
     return {
       folder: `user_uploads/${cleanUserId}`,
       resource_type: 'raw',
-      public_id: cleanFileName // Tên file bây giờ đã "sạch"
+      public_id: cleanFileName
     };
   },
 });
@@ -45,7 +42,6 @@ const storage = new CloudinaryStorage({
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
-    // Kiểm tra đuôi file ở server cho chắc ăn
     if (!file.originalname.match(/\.(html)$/)) {
       return cb(new Error('Chỉ được upload file HTML thôi ông giáo ạ!'), false);
     }
@@ -67,7 +63,7 @@ app.post('/api/upload', (req, res) => {
 
     res.json({ 
       message: "Ngon lành! Upload xong rồi nhé!",
-      fileUrl: req.file.path // Đổi tên từ imageUrl sang fileUrl cho đúng bản chất
+      fileUrl: req.file.path
     });
   });
 });

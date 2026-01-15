@@ -10,10 +10,7 @@ let laAnhGoc = true;
 
 nutBamDoi.addEventListener('click', function() {
     if (laAnhGoc) {
-        // Đổi background cho toàn màn hình
         manHinh.style.backgroundImage = `url('${anhMoi}')`;
-        
-        // Cập nhật các biến màu vàng Glow
         manHinh.style.setProperty('--mau-nhan', '#ffcc00'); 
         manHinh.style.setProperty('--mau-nhan1', '#ffcc00');
         manHinh.style.setProperty('--mau-nhan2', '#fff200');
@@ -24,8 +21,6 @@ nutBamDoi.addEventListener('click', function() {
         laAnhGoc = false;
     } else {
         manHinh.style.backgroundImage = `url('${anhGoc}')`;
-        
-        // Trả về màu xanh neon
         manHinh.style.setProperty('--mau-nhan', '#00ffff');
         manHinh.style.setProperty('--mau-nhan1', '#00ffff');
         manHinh.style.setProperty('--mau-nhan2', '#00ffd5');

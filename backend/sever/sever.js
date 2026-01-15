@@ -1,23 +1,11 @@
-//Gửi người anh em Lập trình:
-//Lúc tui viết đống code này,
-//chỉ có Chúa với tui là hiểu nó chạy kiểu gì.
-//Giờ thì ... xin chia buồn,
-//chỉ còn mỗi Chúa hiểu thôi.
-//
-//Nên nếu bro đang cố tối ưu
-//cái mớ này và nó toang (99% Là vậy),
-//thì làm ơn tăng cái biến đếm này Lên
-//để người xui xẻo tiếp theo còn biết đường chạy:
-//
-//total_hours_wasted_here = 0 
-const multer = require('multer'); // Thêm ông thần này
-const fs = require('fs');         // Thêm ông thần này để tạo folder
+const multer = require('multer'); 
+const fs = require('fs');        
 const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3000; // Để chạy được trên Render
+const PORT = process.env.PORT || 3000; 
 require('dotenv').config();
 
 // 1. Cấu hình Middleware
@@ -30,7 +18,7 @@ const mongoURI = process.env.MONGO_URI;
 mongoose.connect(mongoURI)
     .then(() => console.log("Đã kết nối MongoDB thành công!"))
     .catch(err => console.error("Lỗi kết nối MongoDB:", err));
-// Hàm tạo một chuỗi key ngẫu nhiên dài 16 ký tự
+
 function generateKey() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%^&*';
     let result = '';
@@ -51,7 +39,7 @@ async function suggestUsername(baseName) {
     return newName;
 }
 
-// 3. Tạo khuôn mẫu dữ liệu (Schema)
+//Tạo khuôn mẫu dữ liệu 
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
@@ -65,12 +53,8 @@ const User = mongoose.model('User', UserSchema);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // Lấy username từ body gửi lên
         const user = req.query.username || "khach_vang_lai"; 
-        
         const uploadDir = path.join(__dirname, 'uploads', user);
-
-        // Kiểm tra nếu folder chưa có thì tạo mới (recursive: true là tạo cả folder cha nếu thiếu)
         if (!fs.existsSync(uploadDir)){
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -78,7 +62,6 @@ const storage = multer.diskStorage({
         cb(null, uploadDir); // Lưu file vào folder này
     },
     filename: function (req, file, cb) {
-        // Đặt tên file: timestamp-tenfilegoc
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
@@ -90,11 +73,7 @@ app.post('/api/upload', upload.single('fileUpload'), (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: "Chưa chọn file hoặc lỗi file!" });
         }
-        
-        // Trả về đường dẫn file cho client xem
-        // Lưu ý: Ông cần cấu hình express.static để xem được file này trên web
         const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.body.username}/${req.file.filename}`;
-        
         res.status(200).json({ 
             message: "Upload thành công vào kho riêng!", 
             fileUrl: fileUrl 
@@ -129,17 +108,17 @@ app.post('/api/save-account', async (req, res) => {
             // Nếu trùng, gọi hàm gợi ý tên mới
             const suggestion = await suggestUsername(username);
             return res.status(400).json({
-                message: "Tên này có người dùng rồi og ơi!",
+                message: "Tên này có người dùng rồi bạn ơi!",
                 suggestedName: suggestion
             });
         }
         const userKey = generateKey();
         const newUser = new User({ username, password, ipuser: userIP, key: userKey, location, device_info });
         await newUser.save(); // Lưu trực tiếp lên đám mây
-        console.log("💾 Đã lưu vào MongoDB:", username);
+        console.log("Đã lưu vào MongoDB:", username);
         res.status(200).send("userok");
     } catch (err) {
-        console.error("❌ Lỗi khi lưu:", err);
+        console.error("Lỗi khi lưu:", err);
         res.status(500).send("badsever");
     }
 });

@@ -2,28 +2,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('fileUpload');
     const submitButton = uploadForm.querySelector('button[type="submit"]');
-    // 1. KIỂM TRA ĐĂNG NHẬP (Chống vượt rào)
+    //kiểm tra đăng nhập
     const currentUser = localStorage.getItem("currentUser")?.trim();
     if (!currentUser) {
         alert("Ê chưa đăng nhập mà đòi upload hả? Quay lại đăng nhập đi!");
-        window.location.href = '../../view/group_mat_khau/login.html'; // Đường dẫn về trang login của ông
+        window.location.href = '../../view/group_mat_khau/login.html';
         return;
     }
     console.log("Đang upload với tư cách:", currentUser);
     
 
     uploadForm.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Ngăn form submit theo cách thông thường
-        
-        // Kiểm tra xem đã chọn file chưa
+        e.preventDefault();
         if (!fileInput.files || fileInput.files.length === 0) {
             showMessage('Vui lòng chọn file trước khi upload!', 'error');
             return;
         }
-
         const file = fileInput.files[0];
 
-        // Kiểm tra file có phải HTML không
+        // Kiểm tra file html
         if (!file.name.endsWith('.html')) {
             showMessage('Chỉ chấp nhận file HTML!', 'error');
             return;
@@ -50,22 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 // Upload thành công
                 showMessage(data.message || 'Upload thành công!', 'success');
-                
                 console.log('URL file đã upload:', data.fileUrl);
                 displayFileUrl(data.fileUrl, uploadForm);
-                    
-                // Reset form
                 uploadForm.reset();
             } else {
-                // Có lỗi từ server
                 showMessage(data.error || 'Upload thất bại!', 'error');
             }
         } catch (error) {
-            // Lỗi kết nối hoặc lỗi khác
             console.error('Lỗi upload:', error);
             showMessage('Không thể kết nối đến server! Kiểm tra xem server đã chạy chưa.', 'error');
         } finally {
-            // Khôi phục lại button
             submitButton.disabled = false;
             submitButton.textContent = 'Upload';
         }
@@ -73,20 +64,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hàm hiển thị thông báo
     function showMessage(message, type) {
-        // Xóa thông báo cũ nếu có
         const oldMessage = document.querySelector('.upload-message');
         if (oldMessage) {
             oldMessage.remove();
         }
-
-        // Tạo thông báo mới
         const messageDiv = document.createElement('div');
         messageDiv.className = `upload-message ${type}`;
         messageDiv.textContent = message;
-        
-        // Thêm vào form
         uploadForm.appendChild(messageDiv);
-
         // Tự động xóa sau 5 giây
         setTimeout(() => {
             messageDiv.style.opacity = '0';
@@ -94,37 +79,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // Hàm hiển thị URL file đã upload
-  // Hàm hiển thị URL file đã upload
     function displayFileUrl(url, targetForm) {
-        // 1. Kiểm tra nếu không có form thì nghỉ khỏe
         if (!targetForm) return;
-
-        
         const oldLink = document.querySelector('.file-url-container');
         if (oldLink) {
             oldLink.remove();
         }
-
-        // 3. Tạo container chứa link và nút copy
         const linkContainer = document.createElement('div');
         linkContainer.className = 'file-url-container';
-        
-        // Tui dùng inline style một chút cho nó nổi bật nhé
         linkContainer.style.marginTop = '20px';
         linkContainer.style.padding = '10px';
         linkContainer.style.border = '1px dashed #ccc';
 
         linkContainer.innerHTML = `
-            <p style="font-weight: bold; color: #2ecc71;">✓  file của bạn đã được tải lên sever</p>
+            <p style="font-weight: bold; color: #2ecc71;">✓ file của bạn đã được tải lên sever</p>
             <div style="display: flex; gap: 10px; align-items: center;"></div>
         `;
-        
-        // 4. Thêm vào form (targetForm được truyền từ lúSc gọi hàm)
         targetForm.appendChild(linkContainer);
     }
 
-    // Sửa lại hàm copy một chút để dùng cho mọi nút
     function copyToClipboard(text, btnElement) {
         navigator.clipboard.writeText(text).then(() => {
             const originalText = btnElement.textContent;

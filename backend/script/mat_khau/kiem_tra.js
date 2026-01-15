@@ -3,14 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 
-
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
-
 
 app.use(express.json());
 app.use(cors());
-
-
 
 const mongoURI = process.env.MONGO_URI;
 
@@ -36,10 +32,10 @@ app.post('/api/login', async (req, res) => {
         const user = await User.findOne({ username: username, password: password });
 
         if (user) {
-            console.log("🔓 Đăng nhập khớp:", username);
+            console.log("Đăng nhập khớp:", username);
             res.json({ status: "OK", userId: user.username });
         } else {
-            console.log("🚫 Không tìm thấy tài khoản!");
+            console.log("Không tìm thấy tài khoản!");
             res.status(401).json({ status: "FAIL", message: "Sai thông tin!" });
         }
     } catch (err) {
@@ -47,4 +43,4 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`🔍 Server kiểm tra chạy tại: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server kiểm tra chạy tại: http://localhost:${PORT}`));

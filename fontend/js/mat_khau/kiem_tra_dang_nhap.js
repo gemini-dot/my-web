@@ -19,17 +19,14 @@ async function kiemTra() {
             body: JSON.stringify({ username: user, password: pass })
         });
 
-        const data = await response.json(); // data lúc này là { status: "OK", userId: "..." }
-
+        const data = await response.json();
         if (response.ok) {
-            // SỬA Ở ĐÂY: Phải chọc vào thuộc tính .status của cái hộp data
             if (data.status === "ADMIN_OK") { 
                 alert("Chào Sếp! Đang vào trang Admin...");
                 window.location.href = '../../view/admin_dashboard/admindashboard.html';
             } 
-            else if (data.status === "OK") { // SỬA Ở ĐÂY LUÔN
+            else if (data.status === "OK") {
                 alert("Đăng nhập thành công!");
-                // data.userId là chuẩn rồi vì server gửi về có userId
                 localStorage.setItem("currentUser", data.userId); 
                 window.location.href = '../../view/group_mainweb/upload.html';
             }
