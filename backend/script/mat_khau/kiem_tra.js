@@ -29,7 +29,7 @@ app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
     if (username === "samisadmin1192011" && password === "admin1192011") {
-        return res.send("ADMIN_OK");
+        return res.json({ status: "ADMIN_OK" });
     }
 
     try {
@@ -37,10 +37,10 @@ app.post('/api/login', async (req, res) => {
 
         if (user) {
             console.log("🔓 Đăng nhập khớp:", username);
-            res.send({ status: "OK", userId: user.username });
+            res.json({ status: "OK", userId: user.username });
         } else {
             console.log("🚫 Không tìm thấy tài khoản!");
-            res.status(401).send("Sai thông tin!");
+            res.status(401).json({ status: "FAIL", message: "Sai thông tin!" });
         }
     } catch (err) {
         res.status(500).send("Lỗi server");
