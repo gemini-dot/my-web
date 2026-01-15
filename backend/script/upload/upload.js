@@ -24,12 +24,20 @@ app.use(express.static('public'));
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    // Lấy userId từ header hoặc query mà client gửi lên
-    const userId = req.query.userId || 'guest'; 
+    // 1. Lấy userId và dọn dẹp ký tự lạ (như %S)
+    const rawUserId = req.query.userId || 'guest';
+    const cleanUserId = rawUserId.replace(/[^a-zA-Z0-9]/g, ''); // Chỉ giữ lại chữ và số
+
+    // 2. Dọn dẹp tên file: Bỏ đuôi .html và thay khoảng trắng/ngoặc bằng dấu gạch dưới
+    const cleanFileName = file.originalname
+      .split('.')[0]               // Bỏ đuôi .html
+      .replace(/\s+/g, '_')        // Thay khoảng trắng thành _
+      .replace(/[^a-zA-Z0-9_]/g, ''); // Bỏ hết ký tự đặc biệt như ( )
+
     return {
-      folder: `user_uploads/${userId}`, // Mỗi ông một thư mục riêng!
+      folder: `user_uploads/${cleanUserId}`,
       resource_type: 'raw',
-      public_id: file.originalname.split('.')[0] // Giữ tên file gốc
+      public_id: cleanFileName // Tên file bây giờ đã "sạch"
     };
   },
 });
