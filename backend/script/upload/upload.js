@@ -9,7 +9,12 @@ cloudinary.config();
 const app = express();
 
 // 1. Cho phép server chính của ông gọi vào server này
-app.use(cors()); 
+app.use(cors({
+    origin: 'https://my-web-ag2.pages.dev', // Link trang web frontend của ông
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+}));
+
 app.use(express.static('public'));
 
 // 2. Không cần config lẻ tẻ nữa, Cloudinary tự tìm CLOUDINARY_URL trong .env

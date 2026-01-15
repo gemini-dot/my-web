@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('fileUpload');
     const submitButton = uploadForm.querySelector('button[type="submit"]');
     // 1. KIỂM TRA ĐĂNG NHẬP (Chống vượt rào)
-    const currentUser = localStorage.getItem("currentUser");
+    const currentUser = localStorage.getItem("currentUser")?.trim();
     if (!currentUser) {
         alert("Ê chưa đăng nhập mà đòi upload hả? Quay lại đăng nhập đi!");
         window.location.href = '../../view/group_mat_khau/login.html'; // Đường dẫn về trang login của ông
