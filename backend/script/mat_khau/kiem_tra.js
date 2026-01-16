@@ -11,8 +11,8 @@ app.use(cors());
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
-    .then(() => console.log("✅ [Server Kiểm tra] Đã kết nối MongoDB thành công!"))
-    .catch(err => console.error("❌ Lỗi kết nối:", err));
+    .then(() => console.log("[Server Kiểm tra] Đã kết nối MongoDB thành công!"))
+    .catch(err => console.error("Lỗi kết nối:", err));
 
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
@@ -24,7 +24,7 @@ const User = mongoose.model('User', UserSchema);
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
-    if (username === "samisadmin1192011" && password === "admin1192011") {
+    if (username === "samisadmin1192011" && password === "admin1192011") { //tiếp theo sẽ phát triển tính năng cấp quyền admin.
         return res.json({ status: "ADMIN_OK" });
     }
 

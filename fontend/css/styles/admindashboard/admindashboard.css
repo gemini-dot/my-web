@@ -1,42 +1,101 @@
-/* Làm cho toàn bộ trang web chiếm hết chiều cao màn hình */
-body {
-    margin: 0;
-    padding: 0;
+/* Container nội dung chính */
+.main-content {
     display: flex;
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center;     /* Căn giữa theo chiều dọc */
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
-    background-image: url('https://wallpaperaccess.com/full/1393335.jpg'); /* Thêm cái nền cho dễ thấy hiệu ứng blur */
-    background-size: cover;
-    background-position: center;
+    background-color: #f8fafc; /* Màu nền xám trắng hiện đại */
 }
 
-.hinh-chu-nhat {
-    /* Màu nền đen trong suốt */
-    background-color: rgba(0, 0, 0, 0.6); 
-    
-    /* Hiệu ứng làm mờ hậu cảnh (Glassmorphism) */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px); /* Hỗ trợ cho Safari */
-    
-    /* Bo góc và đổ bóng cho pro */
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    
-    /* Viền trắng mờ để tạo cảm giác sang trọng */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    
-    /* Giới hạn độ rộng của ô */
-    max-width: 80%;
+.under-construction {
     text-align: center;
+    max-width: 500px;
+    padding: 40px;
+}
+
+/* Badge phiên bản nhỏ phía trên */
+.badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
 }
 
 h1 {
-    color: #ffffff;
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    font-size: 1.75rem;
+    color: #0f172a; /* Màu xanh đen sang trọng */
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+p {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+/* Thanh tiến trình kiểu phẳng chuyên nghiệp */
+.progress-wrapper {
+    margin-bottom: 40px;
+    text-align: left;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 75%; /* Chỗ này có thể chỉnh tiến độ */
+    background: #2563eb; /* Màu xanh chủ đạo */
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
+}
+
+/* Nút bấm phẳng hiện đại */
+.btn-back {
+    padding: 12px 30px;
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+img {
+    height: 50px;
+    width: 50px;
+    border-radius: 10px;
+    position: absolute; /* Hoặc 'fixed' nếu muốn nó đứng yên khi cuộn trang */
+    top: 20px;    /* Cách mép trên 10px */
+    left: 10px;   /* Cách mép trái 10px */
+    z-index: 100;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    will-change: transform; 
 }

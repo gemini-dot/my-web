@@ -55,7 +55,7 @@ function kiemTra2() {
             const popup = document.querySelector(".pop-up");
             const keyDisplay = document.getElementById("show-key");
             if (keyDisplay) {
-                keyDisplay.innerText = data.key; // Lấy key từ server đổ vào giao diện
+                keyDisplay.innerText = data.key;
             }
             popup.style.display = "block";
             overlay.style.display = "block";
@@ -69,7 +69,7 @@ function kiemTra2() {
         .catch(error => {
             console.error('Lỗi:', error);
             if (error.message !== 'Trùng tên hoặc lỗi input') {
-                alert("Lỗi kết nối tới server rồi ông ơi!");
+                alert("Lỗi kết nối tới server rồi bạn ơi!");
             }
         });
 }

@@ -43,7 +43,7 @@ const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
     if (!file.originalname.match(/\.(html)$/)) {
-      return cb(new Error('Chỉ được upload file HTML thôi ông giáo ạ!'), false);
+      return cb(new Error('Chỉ được upload file HTML thôi bạn ạ!'), false); // tính năng upload các file khác hiện tại chưa được phát triển.
     }
     cb(null, true);
   }
@@ -58,7 +58,7 @@ app.post('/api/upload', (req, res) => {
     }
     
     if (!req.file) {
-      return res.status(400).json({ error: "Ông chưa chọn file mà!" });
+      return res.status(400).json({ error: "Bạn chưa chọn file mà!" });
     }
 
     res.json({ 

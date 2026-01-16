@@ -1,0 +1,171 @@
+/* Tận dụng font và nền từ style cũ của og */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    /* Ông có thể đổi đường dẫn ảnh nền bên dưới cho giống trang đăng ký nhé */
+    background-image: url('../../assets/backgroud/11369500.jpg'); 
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.o-tong {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Hiệu ứng Kính Lỏng (Liquid Glass) */
+.the-liquid-glass {
+    background: rgba(255, 255, 255, 0.01); /* Cực kỳ trong suốt */
+    backdrop-filter: blur(20px); /* Làm mờ cực mạnh */
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 30px;
+    padding: 40px;
+    width: 380px;
+    text-align: center;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.2),
+        inset 0 0 15px rgba(255, 255, 255, 0.1);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.the-liquid-glass:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+}
+
+/* Icon bánh răng xoay cho sinh động */
+.icon-xoay {
+    font-size: 60px;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.tieu-de {
+    font-family: 'Anton', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.noi-dung p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.ghi-chu-nho {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 25px;
+    font-style: italic;
+}
+
+/* Style cho nút bấm quay lại */
+.nut-quay-lai {
+    margin-top: 30px;
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.nut-quay-lai:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+img {
+    height: 50px;
+    width: 50px;
+    border-radius: 10px;
+    position: absolute; /* Hoặc 'fixed' nếu muốn nó đứng yên khi cuộn trang */
+    top: 10px;    /* Cách mép trên 10px */
+    left: 10px;   /* Cách mép trái 10px */
+    z-index: 100;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    will-change: transform; 
+}
+img:hover {
+    transform: scale(1.1);/* Phóng to 10% và hơi nghiêng cho vui mắt */
+}
+
+.slogan {
+    position: fixed;
+    top: 18px;
+    left: 190px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: block; /* Để block để animation chạy được */
+    overflow: hidden; /* Để cái thanh quét không bị lòi ra ngoài */
+}
+
+.text-quet {
+    font-family: 'Anton', sans-serif;
+    color: white;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    position: relative;
+    opacity: 0; /* Mặc định ẩn chữ */
+    display: block;
+}
+
+/* Đây là cái THANH QUÉT (dùng phần tử giả :after) */
+.text-quet::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #373737; /* Màu của thanh quét, og thích màu gì thì đổi nha */
+    transform: translateX(-101%); /* Giấu thanh quét sang bên trái */
+}
+
+/* --- KHI HOVER VÀO ẢNH --- */
+
+/* 1. Làm cái chữ hiện ra */
+body:has(#hinhgai:hover) .text-quet {
+    animation: hien-chu 0.1s forwards;
+    animation-delay: 0.3s; /* Chờ cái thanh quét chạy tới một chút rồi mới hiện */
+}
+
+/* 2. Cho cái thanh quét chạy từ Trái sang Phải */
+body:has(#hinhgai:hover) .text-quet::after {
+    animation: thanh-quet-chay 0.8s ease-in-out;
+}
+
+/* KỊCH BẢN CHO THANH QUÉT */
+@keyframes thanh-quet-chay {
+    0% { transform: translateX(-101%); }
+    50% { transform: translateX(0); } /* Thanh phủ kín chữ */
+    100% { transform: translateX(101%); } /* Thanh chạy mất sang phải */
+}
+
+/* KỊCH BẢN CHO CHỮ */
+@keyframes hien-chu {
+    to { opacity: 1; }
+}

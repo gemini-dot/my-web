@@ -138,5 +138,5 @@ app.post('/api/save-account', dangKyLimiter, async (req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server online tại port: ${PORT}`);
+    console.log(`Server online tại port: ${PORT}`);
 });
