@@ -6,11 +6,22 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000; 
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // 1. Cấu hình Middleware
 app.use(express.json());
 app.use(cors());
+
+const dangKyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 phút
+    max: 5, // Tối đa 5 lần thử từ 1 địa chỉ IP trong 15 phút
+    message: {
+        error: "Ông giáo gửi nhanh quá! Đợi 15 phút sau rồi thử lại nhé."
+    },
+    standardHeaders: true, // Trả về thông tin giới hạn trong Header
+    legacyHeaders: false, 
+});
 
 // 2. Kết nối MongoDB
 const mongoURI = process.env.MONGO_URI;
@@ -87,7 +98,7 @@ app.post('/api/upload', upload.single('fileUpload'), (req, res) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // 4. API lưu tài khoản
-app.post('/api/save-account', async (req, res) => {
+app.post('/api/save-account', dangKyLimiter, async (req, res) => {
     let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
     if (userIP && userIP.includes(',')) {
         userIP = userIP.split(',')[0].trim();
