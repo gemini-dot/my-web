@@ -50,7 +50,7 @@ function kiemTra2() {
         return response.json();
     })
     .then(data => {
-        if(data === "userok") {
+        if(data.status === "userok") {
             const overlay = document.getElementById("overlay");
             const popup = document.querySelector(".pop-up");
             const keyDisplay = document.getElementById("show-key");
@@ -59,6 +59,7 @@ function kiemTra2() {
             }
             popup.style.display = "block";
             overlay.style.display = "block";
+            console.log("ok!")
             setTimeout(() => {
                 popup.style.display = "none";
                 location.reload();
