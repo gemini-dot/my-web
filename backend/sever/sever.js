@@ -7,6 +7,7 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000; 
 const rateLimit = require('express-rate-limit');
+app.set('trust proxy', 1);
 require('dotenv').config();
 
 // 1. Cấu hình Middleware
