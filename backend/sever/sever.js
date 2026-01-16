@@ -116,7 +116,7 @@ app.post('/api/save-account', async (req, res) => {
         const newUser = new User({ username, password, ipuser: userIP, key: userKey, location, device_info });
         await newUser.save(); // Lưu trực tiếp lên đám mây
         console.log("Đã lưu vào MongoDB:", username);
-        res.status(200).send("userok");
+        res.status(200).json({ status: "userok", key: userKey });
     } catch (err) {
         console.error("Lỗi khi lưu:", err);
         res.status(500).send("badsever");

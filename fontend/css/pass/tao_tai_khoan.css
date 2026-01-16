@@ -287,20 +287,6 @@ body {
     display: block;
     margin-top: -7px;
 }
-.pop-up {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 20px 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    font-size: 18px;
-    z-index: 1000;
-    display: none; /* Mặc định ẩn đi */
-}
 .khung1, .khung2 {
     position: relative;
     margin-bottom: 25px;
@@ -427,4 +413,63 @@ body:has(#hinhgai:hover) .text-quet::after {
 /* KỊCH BẢN CHO CHỮ */
 @keyframes hien-chu {
     to { opacity: 1; }
+}
+
+
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    display: none; /* Ẩn đi mặc định */
+    z-index: 998;
+}
+
+
+.pop-up {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 350px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.008); /* Kính trắng trong suốt */
+    border-radius: 30px; /* Bo góc cực tròn */
+    
+    /* Hiệu ứng đổ bóng nhiều lớp để tạo độ nổi khối (Liquid) */
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+    
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 999;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: none;
+}
+.pop-up:hover {
+    /* 1. Làm cái ô nổi cao lên và to ra một chút */
+    background: rgba(255, 255, 255, 0.008);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Thêm vào file css của og */
+.key-container {
+    margin: 20px 0;
+    padding: 15px;
+    /* Hình vuông bo viền nét đứt theo ý og */
+    border: 2px dashed var(--mau-nhan6, #00ffff); 
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: inline-block;
+    min-width: 80%;
+}
+
+#show-key {
+    font-family: 'Courier New', Courier, monospace; /* Font chữ mã code */
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #00ffd5;
+    text-shadow: 0 0 8px rgba(0, 255, 213, 0.5);
+    word-break: break-all; /* Để key dài không bị tràn khung */
 }

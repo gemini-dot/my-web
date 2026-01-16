@@ -37,35 +37,36 @@ function kiemTra2() {
         body: JSON.stringify({ username: user, password: pass })
     })
     .then(async response => {
-        // Kiểm tra nếu server báo lỗi (status 400 là trùng tên hoặc thiếu data)
         if (!response.ok) {
-            const errorData = await response.json(); // Lấy dữ liệu JSON từ server
+            const errorData = await response.json();
             if (errorData.suggestedName) {
-                alert(`Tên này có người dùng rồi ông ơi! Thử tên này xem: ${errorData.suggestedName}`);
+                alert(`Tên này có người dùng rồi bạn ơi! Thử tên này xem: ${errorData.suggestedName}`);
                 userElement.classList.add("hieu-ung-sai");
             } else {
                 alert("Có lỗi gì đó xảy ra rồi!");
             }
-            throw new Error('Trùng tên hoặc lỗi input'); // Dừng không chạy tiếp xuống dưới
+            throw new Error('Trùng tên hoặc lỗi input');
         }
-        return response.text(); // Nếu ok (200) thì đi tiếp
+        return response.json();
     })
     .then(data => {
         if(data === "userok") {
-            // Hiện Popup thành công
+            const overlay = document.getElementById("overlay");
             const popup = document.querySelector(".pop-up");
+            const keyDisplay = document.getElementById("show-key");
+            if (keyDisplay) {
+                keyDisplay.innerText = data.key; // Lấy key từ server đổ vào giao diện
+            }
             popup.style.display = "block";
-
-            // Sau 3 giây thì mới reload
+            overlay.style.display = "block";
             setTimeout(() => {
                 popup.style.display = "none";
                 location.reload();
-            }, 3000);
+            }, 5000);
         }
     })
         .catch(error => {
             console.error('Lỗi:', error);
-            // Nếu không phải lỗi trùng tên (đã xử lý ở trên) thì mới báo lỗi kết nối
             if (error.message !== 'Trùng tên hoặc lỗi input') {
                 alert("Lỗi kết nối tới server rồi ông ơi!");
             }
