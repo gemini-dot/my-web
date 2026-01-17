@@ -167,20 +167,35 @@ body {
 }
 
 .nut-bam {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     width: 100%;
     padding: 12px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    background: rgba(255, 255, 255, 0.1); /* Hơi trong suốt cho hợp tone kính */
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
+    color: white; /* Cho chữ trắng nhìn cho sang */
+    outline: none;
+    margin-bottom: 0;
+    position: relative; /* Quan trọng: Làm điểm tựa cho mảng sáng */
+    overflow: hidden;    /* Quan trọng: Cắt bỏ phần mảng sáng thừa ở ngoài */
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    font-family: 'Anton', sans-serif;
-    font-weight: 400; 
-    letter-spacing: 1px;
+    transition: 0.3s; 
 }
+
+.nut-bam:hover::before {
+    left: 150%; /* Chạy vọt sang bên phải */
+    transition: 0.7s; /* Tốc độ bóng chạy qua */
+}
+
+/* Thêm hiệu ứng cho cái nút sáng hơn tí khi hover */
 .nut-bam:hover {
-    transform: scale(1.01); 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.nut-bam:active {
+    transform: translateY(0);
 }
 
 .quen-mat-khau {
