@@ -5,8 +5,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3000; 
 const rateLimit = require('express-rate-limit');
+const bcrypt = require('bcryptjs');
+
+const PORT = process.env.PORT || 3000; 
+
+
 app.set('trust proxy', 1);
 require('dotenv').config();
 
@@ -112,7 +116,6 @@ app.post('/api/save-account', dangKyLimiter, async (req, res) => {
     if (!username || !password) {
         return res.status(400).send("bad");
     }
-
     try {
         const existingUser = await User.findOne({ username: username });
 
@@ -124,8 +127,10 @@ app.post('/api/save-account', dangKyLimiter, async (req, res) => {
                 suggestedName: suggestion
             });
         }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
         const userKey = generateKey();
-        const newUser = new User({ username, password, ipuser: userIP, key: userKey, location, device_info });
+        const newUser = new User({ username, password:hashedPassword , ipuser: userIP, key: userKey, location, device_info });
         await newUser.save(); // Lưu trực tiếp lên đám mây
         console.log("Đã lưu vào MongoDB:", username);
         res.status(200).json({ status: "userok", key: userKey });
@@ -134,8 +139,6 @@ app.post('/api/save-account', dangKyLimiter, async (req, res) => {
         res.status(500).send("badsever");
     }
 });
-
-
 
 app.listen(PORT, () => {
     console.log(`Server online tại port: ${PORT}`);

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
+const bcrypt = require('bcryptjs');
 
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
 
@@ -29,11 +30,17 @@ app.post('/api/login', async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ username: username, password: password });
+        const user = await User.findOne({username: username});
 
         if (user) {
-            console.log("Đăng nhập khớp:", username);
-            res.json({ status: "OK", userId: user.username });
+            const isMatch = await bcrypt.compare(password, user.password);
+            if(isMatch){
+                console.log("Đăng nhập khớp:", username);
+                res.json({ status: "OK", userId: user.username });
+            }else{
+                console.log("Sai mật khẩu!");
+                res.status(401).json({ status: "FAIL", message: "Sai thông tin!" });
+            }
         } else {
             console.log("Không tìm thấy tài khoản!");
             res.status(401).json({ status: "FAIL", message: "Sai thông tin!" });
