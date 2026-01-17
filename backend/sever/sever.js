@@ -69,12 +69,12 @@ const User = mongoose.model('User', UserSchema);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const user = req.query.username || "khach_vang_lai"; 
+        const rawuser = req.query.username || "khach_vang_lai"; 
+        const user = rawuser.replace(/[^a-z0-9]/gi, '_');
         const uploadDir = path.join(__dirname, 'uploads', user);
         if (!fs.existsSync(uploadDir)){
             fs.mkdirSync(uploadDir, { recursive: true });
         }
-
         cb(null, uploadDir); // Lưu file vào folder này
     },
     filename: function (req, file, cb) {
@@ -82,7 +82,18 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|pdf|zip|html/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        if (extname) {
+            return cb(null, true);
+        }
+        cb(new Error("File này không được phép ông giáo ơi!"));
+    }
+});
 
 app.post('/api/upload', upload.single('fileUpload'), (req, res) => {
     try {
@@ -98,6 +109,18 @@ app.post('/api/upload', upload.single('fileUpload'), (req, res) => {
     } catch (error) {
         console.error("Lỗi server:", error);
         res.status(500).json({ error: "Lỗi Server rồi ông giáo ạ!" });
+    }
+});
+
+app.get('/uploads/:user/:filename', (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', req.params.user, req.params.filename);
+    if (fs.existsSync(filePath)) {
+        if (req.params.filename.endsWith('.html')) {
+            res.setHeader('Content-Disposition', 'attachment; filename=' + req.params.filename);
+        }
+        res.sendFile(filePath);
+    } else {
+        res.status(404).send("Không tìm thấy file rồi!");
     }
 });
 

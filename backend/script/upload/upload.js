@@ -1,4 +1,4 @@
-require('dotenv').config(); // Phải có dòng này để đọc file .env
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors'); 
 const cloudinary = require('cloudinary').v2;
@@ -23,9 +23,7 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     // 1. Lấy userId và dọn dẹp ký tự lạ (như %S)
     const rawUserId = req.query.userId || 'guest';
-    const cleanUserId = rawUserId.replace(/[^a-zA-Z0-9]/g, ''); // Chỉ giữ lại chữ và số
-
-    // 2. Dọn dẹp tên file: Bỏ đuôi .html và thay khoảng trắng/ngoặc bằng dấu gạch dưới
+    const cleanUserId = rawUserId.replace(/[^a-zA-Z0-9]/g, '');
     const cleanFileName = file.originalname
       .split('.')[0]              
       .replace(/\s+/g, '_')       

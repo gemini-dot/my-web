@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3000; // Để chạy được trên Render
 
@@ -25,10 +26,9 @@ const User = mongoose.model('User', UserSchema);
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
-    if (username === "samisadmin1192011" && password === "admin1192011") { //tiếp theo sẽ phát triển tính năng cấp quyền admin.
+    if (username === process.env.ADMINUSER && password === process.env.ADMINPASS) { //tiếp theo sẽ phát triển tính năng cấp quyền admin.
         return res.json({ status: "ADMIN_OK" });
     }
-
     try {
         const user = await User.findOne({username: username});
 
