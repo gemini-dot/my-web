@@ -1,1 +1,1 @@
-None
+print("ò, file này chẳng có gì cho bạn xem đâu:))")

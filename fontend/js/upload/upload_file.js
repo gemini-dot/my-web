@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         const file = fileInput.files[0];
-
+        const allowedExtensions = ['.html', '.css', '.pptx', '.txt', '.png'];
+        const fileName = file.name.toLowerCase();
+        const isAllowed = allowedExtensions.some(ext => fileName.endsWith(ext));
         // Kiểm tra file html
-        if (!file.name.endsWith('.html')) {
+        if (isAllowed) {
             showMessage('Chỉ chấp nhận file HTML!', 'error');
             return;
         }
