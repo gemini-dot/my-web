@@ -39,9 +39,10 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ 
   storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (!file.originalname.match(/\.(html)$/)) {
-      return cb(new Error('Chỉ được upload file HTML thôi bạn ạ!'), false); // tính năng upload các file khác hiện tại chưa được phát triển.
+    if (!file.originalname.match(/\.(html|jpg|jpeg|png|pdf)$/)) {
+      return cb(new Error('File của bạn hiện tại chưa được hỗ trợ.'), false);
     }
     cb(null, true);
   }
