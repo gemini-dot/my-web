@@ -253,19 +253,17 @@ body {
     transition: 0.4s ease;
 }
 
-@keyframes rung_va_doi_mau {
-    0% { border-color: #ddd; transform: translateX(0); }
-    25% { border-color: #ff4d4d; transform: translateX(-5px); }
-    50% { border-color: #ff0000; transform: translateX(5px); }
-    75% { border-color: #ff4d4d; transform: translateX(-5px); }
-    100% { border-color: red; transform: translateX(0); }
-}
-
-
 .hieu-ung-sai {
     animation: rung_va_doi_mau 0.4s ease-in-out;
-    border-color: red !important;
-    outline: none;
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+}
+@keyframes rung_va_doi_mau {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
 }
 .the-dang-nhap {
     /* 1. Nền trắng cực nhẹ để lấy độ trong suốt */

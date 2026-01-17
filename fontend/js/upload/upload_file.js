@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isAllowed = allowedExtensions.some(ext => fileName.endsWith(ext));
         // Kiểm tra file html
         if (isAllowed) {
-            showMessage('Chỉ chấp nhận file HTML!', 'error');
+            showMessage('Ò, file của bạn chưa được hỗ trợ rồi.', 'error');
             return;
         }
 
