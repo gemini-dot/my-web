@@ -1,10 +1,9 @@
-// Cấu hình Firebase (lấy từ Firebase Console)
+// Cấu hình Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
-    sendEmailVerification,
     onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
@@ -20,6 +19,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+// Biến lưu trữ tạm
+let tempUserData = {
+    email: '',
+    password: '',
+    otpCode: '',
+    idToken: ''
+};
 
 // Kiểm tra email hợp lệ
 function laEmailHopLe(email) {
@@ -70,54 +77,122 @@ document.getElementById('dang-nhap2').addEventListener('click', async function()
     }
 
     try {
-        // Tạo tài khoản với Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
+        // Lưu thông tin tạm
+        tempUserData.email = email;
+        tempUserData.password = pass;
 
-        // Gửi email xác thực
-        await sendEmailVerification(user);
-        alert("Đã tạo tài khoản! Vui lòng check email để xác thực.");
+        // Gửi yêu cầu tạo OTP đến backend
+        const response = await fetch('https://my-web-backend-sever2.onrender.com/api/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        });
 
-        // Hiển thị popup yêu cầu xác thực email
-        document.getElementById("otpPopup").style.display = "flex";
-        
-        // Đợi user xác thực email
-        checkEmailVerification(user);
+        const data = await response.json();
+
+        if (data.status === 'otp_sent') {
+            // Hiển thị popup OTP
+            document.getElementById("otpPopup").style.display = "flex";
+            alert("Mã OTP đã được gửi đến email của bạn!");
+            
+            // Focus vào ô OTP đầu tiên
+            document.querySelector('.otp-field').focus();
+        } else {
+            alert(data.message || "Lỗi khi gửi OTP!");
+        }
 
     } catch (error) {
-        console.error("Lỗi đăng ký:", error);
-        
-        if (error.code === 'auth/email-already-in-use') {
-            alert("Email này đã được sử dụng rồi!");
-        } else if (error.code === 'auth/weak-password') {
-            alert("Mật khẩu quá yếu!");
-        } else {
-            alert("Lỗi đăng ký: " + error.message);
-        }
-        
+        console.error("Lỗi:", error);
+        alert("Lỗi kết nối đến server!");
         userElement.classList.add("hieu-ung-sai");
         passElement.classList.add("hieu-ung-sai");
     }
 });
 
-// Kiểm tra email đã được xác thực chưa
-function checkEmailVerification(user) {
-    const checkInterval = setInterval(async () => {
-        await user.reload();
-        
-        if (user.emailVerified) {
-            clearInterval(checkInterval);
-            
-            // Email đã xác thực -> đăng ký user vào database
-            const idToken = await user.getIdToken();
-            await registerUserToDatabase(idToken);
-            
-            document.getElementById("otpPopup").style.display = "none";
+// XỬ LÝ NHẬP OTP - Tự động chuyển ô
+const otpFields = document.querySelectorAll('.otp-field');
+otpFields.forEach((field, index) => {
+    field.addEventListener('input', (e) => {
+        if (e.target.value.length === 1 && index < otpFields.length - 1) {
+            otpFields[index + 1].focus();
         }
-    }, 3000); // Check mỗi 3 giây
-}
+    });
 
-// Đăng ký user vào database sau khi xác thực email
+    field.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+            otpFields[index - 1].focus();
+        }
+    });
+
+    // Chỉ cho phép nhập số
+    field.addEventListener('keypress', (e) => {
+        if (!/[0-9]/.test(e.key)) {
+            e.preventDefault();
+        }
+    });
+});
+
+// XÁC NHẬN OTP
+document.querySelector('.btn-verify').addEventListener('click', async function() {
+    // Lấy mã OTP từ 4 ô input
+    let otpCode = '';
+    otpFields.forEach(field => {
+        otpCode += field.value;
+    });
+
+    if (otpCode.length !== 4) {
+        alert("Vui lòng nhập đủ 4 số OTP!");
+        return;
+    }
+
+    try {
+        // Xác thực OTP với backend
+        const response = await fetch('https://my-web-backend-sever2.onrender.com/api/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                email: tempUserData.email,
+                otp: otpCode 
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'otp_verified') {
+            // OTP đúng -> Tạo tài khoản Firebase
+            const userCredential = await createUserWithEmailAndPassword(
+                auth, 
+                tempUserData.email, 
+                tempUserData.password
+            );
+            const user = userCredential.user;
+            const idToken = await user.getIdToken();
+
+            // Đăng ký user vào database
+            await registerUserToDatabase(idToken);
+
+            // Đóng popup OTP
+            document.getElementById("otpPopup").style.display = "none";
+
+        } else {
+            alert("Mã OTP không đúng! Vui lòng thử lại.");
+            // Clear các ô OTP
+            otpFields.forEach(field => field.value = '');
+            otpFields[0].focus();
+        }
+
+    } catch (error) {
+        console.error("Lỗi xác thực OTP:", error);
+        
+        if (error.code === 'auth/email-already-in-use') {
+            alert("Email này đã được sử dụng rồi!");
+        } else {
+            alert("Lỗi: " + error.message);
+        }
+    }
+});
+
+// Đăng ký user vào database sau khi xác thực OTP
 async function registerUserToDatabase(idToken) {
     try {
         const response = await fetch('https://my-web-backend-sever2.onrender.com/api/register-user', {
@@ -127,7 +202,7 @@ async function registerUserToDatabase(idToken) {
                 'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify({ 
-                location: "Vietnam", // Có thể lấy từ geolocation
+                location: "Vietnam",
                 device_info: navigator.userAgent 
             })
         });
@@ -158,59 +233,3 @@ async function registerUserToDatabase(idToken) {
         alert("Lỗi kết nối đến server!");
     }
 }
-
-// ĐĂNG NHẬP
-document.getElementById('btn-dang-nhap').addEventListener('click', async function() {
-    let email = document.getElementById("login-username").value;
-    let pass = document.getElementById("login-password").value;
-
-    if (!email || !pass) {
-        alert("Nhập đủ thông tin đi ông!");
-        return;
-    }
-
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
-
-        if (!user.emailVerified) {
-            alert("Email chưa được xác thực! Check email đi.");
-            return;
-        }
-
-        const idToken = await user.getIdToken();
-        
-        // Lấy thông tin user từ database
-        const response = await fetch('https://my-web-backend-sever2.onrender.com/api/user-info', {
-            headers: { 
-                'Authorization': `Bearer ${idToken}`
-            }
-        });
-
-        const userData = await response.json();
-        
-        alert("Đăng nhập thành công! Key: " + userData.key);
-        // Redirect hoặc load trang chính
-        
-    } catch (error) {
-        console.error("Lỗi đăng nhập:", error);
-        
-        if (error.code === 'auth/user-not-found') {
-            alert("Email không tồn tại!");
-        } else if (error.code === 'auth/wrong-password') {
-            alert("Sai mật khẩu rồi!");
-        } else {
-            alert("Lỗi đăng nhập: " + error.message);
-        }
-    }
-});
-
-// Theo dõi trạng thái đăng nhập
-onAuthStateChanged(auth, (user) => {
-    if (user && user.emailVerified) {
-        console.log("User đã đăng nhập:", user.email);
-        // Có thể tự động load thông tin user
-    } else {
-        console.log("Chưa đăng nhập hoặc chưa xác thực email");
-    }
-});

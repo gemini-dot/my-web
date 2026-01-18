@@ -7,6 +7,7 @@ const cors = require('cors');
 const app = express();
 const rateLimit = require('express-rate-limit');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer'); // Cần cài: npm install nodemailer
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000; 
@@ -41,18 +42,27 @@ mongoose.connect(mongoURI)
     .then(() => console.log("Đã kết nối MongoDB thành công!"))
     .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 
-function generateKey() {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%^&*';
-    let result = '';
-    for (let i = 0; i < 16; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
+// ===== CẤU HÌNH NODEMAILER (Gmail) =====
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // Email của bạn (thêm vào .env)
+        pass: process.env.EMAIL_PASS  // App Password của Gmail (thêm vào .env)
     }
-    return result;
-}
+});
 
-// Schema cho user - lưu thông tin bổ sung
+// Schema lưu OTP tạm thời
+const OTPSchema = new mongoose.Schema({
+    email: { type: String, required: true },
+    otp: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now, expires: 300 } // Tự xóa sau 5 phút
+});
+
+const OTP = mongoose.model('OTP', OTPSchema);
+
+// Schema cho user
 const UserSchema = new mongoose.Schema({
-    uid: { type: String, required: true, unique: true }, // Firebase UID
+    uid: { type: String, required: true, unique: true },
     email: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
     ipuser: { type: String },
@@ -62,6 +72,116 @@ const UserSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
+
+function generateKey() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%^&*';
+    let result = '';
+    for (let i = 0; i < 16; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
+// Tạo OTP 4 số
+function generateOTP() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+// ===== API GỬI OTP =====
+app.post('/api/send-otp', dangKyLimiter, async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ error: "Email không được để trống!" });
+    }
+
+    try {
+        // Kiểm tra email đã tồn tại chưa (trong Firebase hoặc DB)
+        const existingUser = await User.findOne({ email: email });
+        if (existingUser) {
+            return res.status(400).json({ error: "Email này đã được đăng ký rồi!" });
+        }
+
+        // Tạo mã OTP
+        const otpCode = generateOTP();
+
+        // Lưu OTP vào database (tự động xóa sau 5 phút)
+        await OTP.findOneAndUpdate(
+            { email: email },
+            { email: email, otp: otpCode },
+            { upsert: true, new: true }
+        );
+
+        // Gửi email OTP
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: '🔐 Mã OTP xác thực tài khoản',
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                    <h2 style="color: white; text-align: center;">Xác thực tài khoản của bạn</h2>
+                    <div style="background: white; padding: 30px; border-radius: 8px; text-align: center;">
+                        <p style="font-size: 16px; color: #333;">Mã OTP của bạn là:</p>
+                        <h1 style="color: #667eea; font-size: 48px; letter-spacing: 10px; margin: 20px 0;">${otpCode}</h1>
+                        <p style="color: #666; font-size: 14px;">Mã này có hiệu lực trong <strong>5 phút</strong></p>
+                        <p style="color: #999; font-size: 12px; margin-top: 20px;">Nếu bạn không yêu cầu mã này, vui lòng bỏ qua email.</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ 
+            status: 'otp_sent',
+            message: 'Mã OTP đã được gửi đến email của bạn!' 
+        });
+
+    } catch (error) {
+        console.error("Lỗi gửi OTP:", error);
+        res.status(500).json({ error: "Lỗi khi gửi OTP!" });
+    }
+});
+
+// ===== API XÁC THỰC OTP =====
+app.post('/api/verify-otp', async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ error: "Email và OTP không được để trống!" });
+    }
+
+    try {
+        // Tìm OTP trong database
+        const otpRecord = await OTP.findOne({ email: email });
+
+        if (!otpRecord) {
+            return res.status(400).json({ 
+                status: 'otp_expired',
+                error: "Mã OTP đã hết hạn hoặc không tồn tại!" 
+            });
+        }
+
+        if (otpRecord.otp !== otp) {
+            return res.status(400).json({ 
+                status: 'otp_invalid',
+                error: "Mã OTP không đúng!" 
+            });
+        }
+
+        // OTP đúng -> Xóa OTP khỏi database
+        await OTP.deleteOne({ email: email });
+
+        res.status(200).json({ 
+            status: 'otp_verified',
+            message: 'Xác thực OTP thành công!' 
+        });
+
+    } catch (error) {
+        console.error("Lỗi xác thực OTP:", error);
+        res.status(500).json({ error: "Lỗi khi xác thực OTP!" });
+    }
+});
 
 // Middleware xác thực Firebase token
 async function verifyFirebaseToken(req, res, next) {
@@ -109,7 +229,6 @@ const upload = multer({
     }
 });
 
-// Upload file - cần xác thực
 app.post('/api/upload', verifyFirebaseToken, upload.single('fileUpload'), (req, res) => {
     try {
         if (!req.file) {
@@ -142,14 +261,13 @@ app.get('/uploads/:user/:filename', (req, res) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API đăng ký user mới sau khi Firebase Authentication thành công
-app.post('/api/register-user', verifyFirebaseToken, dangKyLimiter, async (req, res) => {
+// API đăng ký user mới sau khi xác thực OTP
+app.post('/api/register-user', verifyFirebaseToken, async (req, res) => {
     const { location, device_info } = req.body;
     const uid = req.user.uid;
     const email = req.user.email;
 
     try {
-        // Kiểm tra user đã tồn tại chưa
         const existingUser = await User.findOne({ uid: uid });
         
         if (existingUser) {
@@ -160,7 +278,6 @@ app.post('/api/register-user', verifyFirebaseToken, dangKyLimiter, async (req, r
             });
         }
 
-        // Tạo user mới
         let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
         const userKey = generateKey();
         
