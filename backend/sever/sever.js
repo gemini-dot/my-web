@@ -13,10 +13,15 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3000; 
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-        user: process.env.otpuser, // Thay bằng email của ông
-        pass: process.env.otppass // Thay bằng mật khẩu ứng dụng (không phải pass đăng nhập gmail nha)
+        user: process.env.otpuser,
+        pass: process.env.otppass
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
@@ -89,6 +94,7 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
+// 3. Cấu hình Multer để upload file
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const rawuser = req.query.username || "khach_vang_lai"; 
