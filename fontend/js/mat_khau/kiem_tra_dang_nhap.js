@@ -27,7 +27,7 @@ async function kiemTra() {
                 window.location.href = '../../view/admin_dashboard/admindashboard.html';
             } 
             else if (data.status === "OK") {
-                alert("Đăng nhập thành công!");
+                console.log("đăng nhập thành công")
                 localStorage.setItem("currentUser", data.userId); 
                 window.location.href = '../../view/group_mainweb/upload.html';
             }

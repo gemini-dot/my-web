@@ -1,4 +1,8 @@
 document.getElementById('dang-nhap2').addEventListener('click', kiemTra2);
+function laEmailHopLe(email) {
+    const khuonEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return khuonEmail.test(email);
+}
 function kiemTra2() {
     let pass = document.getElementById("password").value;
     let user = document.getElementById("username").value;
@@ -22,6 +26,12 @@ function kiemTra2() {
         userElement.classList.add("hieu-ung-sai");
         passElement.classList.add("hieu-ung-sai");
         return;
+    }
+    
+    if (!laEmailHopLe(user)) {
+        alert("Ông giáo ơi, nhập đúng định dạng Email (ví dụ: abc@gmail.com) nhé!");
+        userElement.classList.add("hieu-ung-sai");
+        return; // Dừng luôn, không cho chạy tiếp xuống dưới
     }
 
     if (diem <= 2) {
