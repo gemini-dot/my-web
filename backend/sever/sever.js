@@ -22,7 +22,7 @@ const dangKyLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút
     max: 5, // Tối đa 5 lần thử từ 1 địa chỉ IP trong 15 phút
     message: {
-        error: "Ông giáo gửi nhanh quá! Đợi 15 phút sau rồi thử lại nhé."
+        error: "Bạn gửi nhanh quá! Đợi 15 phút sau rồi thử lại nhé."
     },
     standardHeaders: true, // Trả về thông tin giới hạn trong Header
     legacyHeaders: false, 
