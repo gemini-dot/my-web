@@ -7,7 +7,7 @@ const cors = require('cors');
 const app = express();
 const rateLimit = require('express-rate-limit');
 const admin = require('firebase-admin');
-const nodemailer = require('nodemailer'); // Cần cài: npm install nodemailer
+const { Resend } = require('resend'); // Cài: npm install resend
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000; 
@@ -42,30 +42,19 @@ mongoose.connect(mongoURI)
     .then(() => console.log("Đã kết nối MongoDB thành công!"))
     .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 
-// ===== CẤU HÌNH NODEMAILER (Gmail) =====
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-    rateDelta: 1000,
-    rateLimit: 5,
-    connectionTimeout: 30000,  // 30 giây
-    greetingTimeout: 30000,
-    socketTimeout: 60000       // 60 giây
-});
-// Verify SMTP connection
-transporter.verify(function(error, success) {
-    if (error) {
-        console.log('❌ SMTP connection failed:', error);
-    } else {
-        console.log('✅ SMTP server is ready to send emails');
+// ===== CẤU HÌNH RESEND =====
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Verify Resend API key khi khởi động
+(async () => {
+    try {
+        const { data } = await resend.domains.list();
+        console.log('✅ Resend API key is valid');
+    } catch (error) {
+        console.log('❌ Resend API connection failed:', error.message);
     }
-});
+})();
+
 // Schema lưu OTP tạm thời
 const OTPSchema = new mongoose.Schema({
     email: { type: String, required: true },
@@ -102,7 +91,7 @@ function generateOTP() {
     return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-// ===== API GỬI OTP =====
+// ===== API GỬI OTP VỚI RESEND =====
 app.post('/api/send-otp', dangKyLimiter, async (req, res) => {
     const { email } = req.body;
 
@@ -111,7 +100,7 @@ app.post('/api/send-otp', dangKyLimiter, async (req, res) => {
     }
 
     try {
-        // Kiểm tra email đã tồn tại chưa (trong Firebase hoặc DB)
+        // Kiểm tra email đã tồn tại chưa
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
             return res.status(400).json({ error: "Email này đã được đăng ký rồi!" });
@@ -120,16 +109,16 @@ app.post('/api/send-otp', dangKyLimiter, async (req, res) => {
         // Tạo mã OTP
         const otpCode = generateOTP();
 
-        // Lưu OTP vào database (tự động xóa sau 5 phút)
+        // Lưu OTP vào database
         await OTP.findOneAndUpdate(
             { email: email },
             { email: email, otp: otpCode },
             { upsert: true, new: true }
         );
 
-        // Gửi email OTP
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
+        // Gửi email OTP qua Resend
+        const { data, error } = await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev', // VD: 'OTP Service <noreply@yourdomain.com>'
             to: email,
             subject: '🔐 Mã OTP xác thực tài khoản',
             html: `
@@ -143,9 +132,14 @@ app.post('/api/send-otp', dangKyLimiter, async (req, res) => {
                     </div>
                 </div>
             `
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
+        if (error) {
+            console.error('Lỗi gửi email Resend:', error);
+            return res.status(500).json({ error: "Lỗi khi gửi OTP qua email!" });
+        }
+
+        console.log('✅ Email OTP đã gửi:', data);
 
         res.status(200).json({ 
             status: 'otp_sent',
