@@ -17,8 +17,8 @@ const transporter = nodemailer.createTransport({
     port: 587, // Đổi từ 465 sang 587
     secure: false, // Port 587 thì cái này phải là false
     auth: {
-        user: process.env.otpuser,
-        pass: process.env.otppass // Đây phải là Mật khẩu ứng dụng 16 số nhé
+        user: "samvasang1192011@gmail.com",
+        pass: "qfexmibekirmzhiz" // Đây phải là Mật khẩu ứng dụng 16 số nhé
     },
     tls: {
         rejectUnauthorized: false // Giữ nguyên cái này để tránh lỗi chứng chỉ
