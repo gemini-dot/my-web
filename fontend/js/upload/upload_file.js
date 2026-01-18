@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Upload thành công
                 showMessage(data.message || 'Upload thành công!', 'success');
                 console.log('URL file đã upload:', data.fileUrl);
-                displayFileUrl(data.fileUrl, uploadForm);
+                
                 uploadForm.reset();
             } else {
                 showMessage(data.error || 'Upload thất bại!', 'error');
@@ -99,23 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         targetForm.appendChild(linkContainer);
     }
-
-    function copyToClipboard(text, btnElement) {
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = btnElement.textContent;
-            btnElement.textContent = '✓ Đã lưu!';
-            btnElement.style.backgroundColor = '#2ecc71';
-            btnElement.style.color = 'white';
-            
-            setTimeout(() => {
-                btnElement.textContent = originalText;
-                btnElement.style.backgroundColor = '';
-                btnElement.style.color = '';
-            }, 2000);
-        }).catch(err => {
-            console.error('Lỗi rồi ông giáo ạ:', err);
-        });
-    }
     // Hiển thị tên file khi chọn
     fileInput.addEventListener('change', function(e) {
         if (e.target.files.length > 0) {
@@ -124,18 +107,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-// Hàm copy link vào clipboard
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        const copyBtn = document.querySelector('.copy-btn');
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = '✓ Đã copy!';
-        setTimeout(() => {
-            copyBtn.textContent = originalText;
-        }, 2000);
-    }).catch(err => {
-        console.error('Không thể copy:', err);
-        alert('Không thể copy link. Vui lòng copy thủ công.');
-    });
-}
