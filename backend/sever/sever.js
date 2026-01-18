@@ -6,33 +6,21 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const rateLimit = require('express-rate-limit');
-const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+const admin = require('firebase-admin');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000; 
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000
+// Khởi tạo Firebase Admin SDK
+const serviceAccount = require('./firebase-service-account.json'); // Tải file này từ Firebase Console
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
 });
-
-console.log('EMAIL_USER:', process.env.EMAIL_USER);
-console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '***có***' : '***không có***');
-
-const otpStore = {};
 
 app.set('trust proxy', 1);
 
-
-// 1. Cấu hình Middleware
+// Middleware
 app.use(express.json());
 app.use(cors());
 
@@ -61,29 +49,10 @@ function generateKey() {
     return result;
 }
 
-function OTPkey() {
-    const characters = '0123456789';
-    let result = '';
-    for (let i = 0; i < 4; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-}
-
-async function suggestUsername(baseName) {
-    let isUnique = false;
-    let newName = baseName;
-    while (!isUnique) {
-        newName = baseName + Math.floor(Math.random() * 1000);
-        const check = await mongoose.model('User').findOne({ username: newName });
-        if (!check) isUnique = true;
-    }
-    return newName;
-}
-
+// Schema cho user - lưu thông tin bổ sung
 const UserSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
+    uid: { type: String, required: true, unique: true }, // Firebase UID
+    email: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
     ipuser: { type: String },
     key: { type: String, unique: true },
@@ -93,9 +62,27 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
+// Middleware xác thực Firebase token
+async function verifyFirebaseToken(req, res, next) {
+    const idToken = req.headers.authorization?.split('Bearer ')[1];
+    
+    if (!idToken) {
+        return res.status(401).json({ error: "Không có token xác thực!" });
+    }
+
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        req.user = decodedToken;
+        next();
+    } catch (error) {
+        console.error("Lỗi xác thực token:", error);
+        return res.status(401).json({ error: "Token không hợp lệ!" });
+    }
+}
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const rawuser = req.query.username || "khach_vang_lai"; 
+        const rawuser = req.user?.email || "khach_vang_lai"; 
         const user = rawuser.replace(/[^a-z0-9]/gi, '_');
         const uploadDir = path.join(__dirname, 'uploads', user);
         if (!fs.existsSync(uploadDir)){
@@ -121,12 +108,14 @@ const upload = multer({
     }
 });
 
-app.post('/api/upload', upload.single('fileUpload'), (req, res) => {
+// Upload file - cần xác thực
+app.post('/api/upload', verifyFirebaseToken, upload.single('fileUpload'), (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "Chưa chọn file hoặc lỗi file!" });
         }
-        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.body.username}/${req.file.filename}`;
+        const username = req.user.email.replace(/[^a-z0-9]/gi, '_');
+        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${username}/${req.file.filename}`;
         res.status(200).json({ 
             message: "Upload thành công vào kho riêng!", 
             fileUrl: fileUrl 
@@ -152,87 +141,70 @@ app.get('/uploads/:user/:filename', (req, res) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
-    const { username, password, location, device_info } = req.body;
+// API đăng ký user mới sau khi Firebase Authentication thành công
+app.post('/api/register-user', verifyFirebaseToken, dangKyLimiter, async (req, res) => {
+    const { location, device_info } = req.body;
+    const uid = req.user.uid;
+    const email = req.user.email;
 
-    const existingUser = await mongoose.model('User').findOne({ username: username });
-    if (existingUser) {
-        const suggestion = await suggestUsername(username);
-        return res.status(400).json({
-            message: "Tên này có người dùng rồi!",
-            suggestedName: suggestion
-        });
-    }
-
-    const otpCode = OTPkey(); 
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    otpStore[username] = {
-        password: hashedPassword,
-        otp: otpCode,
-        location,
-        device_info,
-        timestamp: Date.now()
-    };
-
-    const mailOptions = {
-        from: 'Web Project Management',
-        to: username,
-        subject: 'Mã xác thực tài khoản của bạn đây!',
-        text: `Chào bạn! Mã OTP của bạn là: ${otpCode}. Đừng đưa cho ai nhé!`
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log("lỗi ở đây nè",error);
-            return res.status(500).json({ error: "Không gửi được mail rồi bạn ơi!" });
-        } else {
-            console.log('Email sent: ' + info.response);
-            return res.status(200).json({ status: "otp_sent", message: "Đã gửi OTP" });
+    try {
+        // Kiểm tra user đã tồn tại chưa
+        const existingUser = await User.findOne({ uid: uid });
+        
+        if (existingUser) {
+            return res.status(200).json({
+                status: "existing_user",
+                key: existingUser.key,
+                message: "User đã tồn tại"
+            });
         }
-    });
+
+        // Tạo user mới
+        let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+        const userKey = generateKey();
+        
+        const newUser = new User({ 
+            uid: uid,
+            email: email,
+            ipuser: userIP, 
+            key: userKey, 
+            location: location, 
+            device_info: device_info 
+        });
+
+        await newUser.save();
+
+        res.status(200).json({ 
+            status: "userok", 
+            key: userKey 
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Lỗi khi lưu vào DB" });
+    }
 });
 
-app.post('/api/verify-otp', async (req, res) => {
-    const { username, otpUserNhap } = req.body;
-
-    const tempData = otpStore[username];
-
-    if (!tempData) {
-        return res.status(400).json({ error: "Lỗi phiên giao dịch hoặc hết hạn!" });
-    }
-    const otpAge = Date.now() - tempData.timestamp;
-    if (otpAge > 5 * 60 * 1000) {
-        delete otpStore[username];
-        return res.status(400).json({ error: "Mã OTP đã hết hạn!" });
-    }
-    if (tempData.otp === otpUserNhap) {
-        try {
-            let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
-            const userKey = generateKey();
-            
-            const newUser = new mongoose.model('User')({ 
-                username: username, 
-                password: tempData.password,
-                ipuser: userIP, 
-                key: userKey, 
-                location: tempData.location, 
-                device_info: tempData.device_info 
-            });
-
-            await newUser.save();
-            
-            delete otpStore[username];
-
-            res.status(200).json({ status: "userok", key: userKey });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send("Lỗi khi lưu vào DB");
+// API lấy thông tin user
+app.get('/api/user-info', verifyFirebaseToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ uid: req.user.uid });
+        
+        if (!user) {
+            return res.status(404).json({ error: "User không tồn tại" });
         }
-    } else {
-        res.status(400).json({ error: "Sai mã OTP rồi bạn ơi!" });
+
+        res.status(200).json({
+            email: user.email,
+            key: user.key,
+            location: user.location,
+            device_info: user.device_info,
+            timestamp: user.timestamp
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Lỗi khi lấy thông tin user" });
     }
 });
 
