@@ -46,6 +46,7 @@ app.post('/api/login', async (req, res) => {
             res.status(401).json({ status: "FAIL", message: "Sai thông tin!" });
         }
     } catch (err) {
+        console.error("Lỗi server:", err);
         res.status(500).send("Lỗi server");
     }
 });
