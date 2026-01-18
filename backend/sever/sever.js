@@ -14,14 +14,11 @@ const PORT = process.env.PORT || 3000;
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465, // Đổi từ 587 thành 465
+    secure: true, // Đổi từ false thành true
     auth: {
-        user: "samvasang1192011@gmail.com",
-        pass: "qfexmibekirmzhiz"
-    },
-    tls: {
-        rejectUnauthorized: false 
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 const otpStore = {};
