@@ -14,11 +14,14 @@ const PORT = process.env.PORT || 3000;
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465, // Đổi từ 587 thành 465
-    secure: true, // Đổi từ false thành true
+    port: 587, // Đổi từ 465 thành 587
+    secure: false, // Đổi từ true thành false (quan trọng!)
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false // Thêm dòng này để bỏ qua lỗi chứng chỉ nếu có
     }
 });
 const otpStore = {};
@@ -172,7 +175,7 @@ app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
     };
 
     const mailOptions = {
-        from: 'PROJECT MANAGEMENT SYSTEM',
+        from: 'Web Project Management',
         to: username,
         subject: 'Mã xác thực tài khoản của bạn đây!',
         text: `Chào bạn! Mã OTP của bạn là: ${otpCode}. Đừng đưa cho ai nhé!`
@@ -180,7 +183,7 @@ app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log(error);
+            console.log("lỗi ở đây nè",error);
             return res.status(500).json({ error: "Không gửi được mail rồi bạn ơi!" });
         } else {
             console.log('Email sent: ' + info.response);
