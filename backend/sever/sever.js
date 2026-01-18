@@ -14,14 +14,14 @@ const PORT = process.env.PORT || 3000;
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587, // Đổi từ 465 sang 587
-    secure: false, // Port 587 thì cái này phải là false
+    port: 587,
+    secure: false,
     auth: {
         user: "samvasang1192011@gmail.com",
-        pass: "qfexmibekirmzhiz" // Đây phải là Mật khẩu ứng dụng 16 số nhé
+        pass: "qfexmibekirmzhiz"
     },
     tls: {
-        rejectUnauthorized: false // Giữ nguyên cái này để tránh lỗi chứng chỉ
+        rejectUnauthorized: false 
     }
 });
 const otpStore = {};
@@ -34,16 +34,15 @@ app.use(express.json());
 app.use(cors());
 
 const dangKyLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 phút
-    max: 5, // Tối đa 5 lần thử từ 1 địa chỉ IP trong 15 phút
+    windowMs: 15 * 60 * 1000, 
+    max: 5, 
     message: {
         error: "Bạn gửi nhanh quá! Đợi 15 phút sau rồi thử lại nhé."
     },
-    standardHeaders: true, // Trả về thông tin giới hạn trong Header
+    standardHeaders: true, 
     legacyHeaders: false, 
 });
 
-// 2. Kết nối MongoDB
 const mongoURI = process.env.MONGO_URI;
 
 mongoose.connect(mongoURI)
@@ -68,19 +67,17 @@ function OTPkey() {
     return result;
 }
 
-// Hàm gợi ý tên mới nếu bị trùng
 async function suggestUsername(baseName) {
     let isUnique = false;
     let newName = baseName;
     while (!isUnique) {
-        newName = baseName + Math.floor(Math.random() * 1000); // Thêm số ngẫu nhiên
+        newName = baseName + Math.floor(Math.random() * 1000);
         const check = await mongoose.model('User').findOne({ username: newName });
         if (!check) isUnique = true;
     }
     return newName;
 }
 
-//Tạo khuôn mẫu dữ liệu 
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
@@ -93,7 +90,6 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-// 3. Cấu hình Multer để upload file
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const rawuser = req.query.username || "khach_vang_lai"; 
@@ -102,7 +98,7 @@ const storage = multer.diskStorage({
         if (!fs.existsSync(uploadDir)){
             fs.mkdirSync(uploadDir, { recursive: true });
         }
-        cb(null, uploadDir); // Lưu file vào folder này
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
@@ -152,11 +148,10 @@ app.get('/uploads/:user/:filename', (req, res) => {
 });
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// 4. API lưu tài khoản
+
 app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
     const { username, password, location, device_info } = req.body;
 
-    // Kiểm tra xem tên đăng nhập đã có trong Database chưa
     const existingUser = await mongoose.model('User').findOne({ username: username });
     if (existingUser) {
         const suggestion = await suggestUsername(username);
@@ -166,35 +161,30 @@ app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
         });
     }
 
-    // Tạo mã OTP ngẫu nhiên (dùng hàm ông đã viết sẵn)
     const otpCode = OTPkey(); 
 
-    // Mã hóa mật khẩu trước khi lưu tạm (cho an toàn)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     
-    // Lưu thông tin vào bộ nhớ tạm (otpStore) với key là username
     otpStore[username] = {
         password: hashedPassword,
         otp: otpCode,
         location,
         device_info,
-        timestamp: Date.now() // Để sau này có thể làm chức năng hết hạn OTP
+        timestamp: Date.now()
     };
 
-    // Cấu hình nội dung email
     const mailOptions = {
         from: 'PROJECT MANAGEMENT SYSTEM',
-        to: username, // Giả sử username là email
-        subject: 'Mã xác thực tài khoản của ông đây!',
-        text: `Chào ông! Mã OTP của ông là: ${otpCode}. Đừng đưa cho ai nhé!`
+        to: username,
+        subject: 'Mã xác thực tài khoản của bạn đây!',
+        text: `Chào bạn! Mã OTP của bạn là: ${otpCode}. Đừng đưa cho ai nhé!`
     };
 
-    // Gửi mail
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log(error);
-            return res.status(500).json({ error: "Không gửi được mail rồi ông ơi!" });
+            return res.status(500).json({ error: "Không gửi được mail rồi bạn ơi!" });
         } else {
             console.log('Email sent: ' + info.response);
             return res.status(200).json({ status: "otp_sent", message: "Đã gửi OTP" });
@@ -202,27 +192,23 @@ app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
     });
 });
 
-// API 2: XÁC THỰC OTP VÀ TẠO TÀI KHOẢN THẬT
 app.post('/api/verify-otp', async (req, res) => {
     const { username, otpUserNhap } = req.body;
 
-    // Lấy thông tin từ kho lưu tạm
     const tempData = otpStore[username];
 
     if (!tempData) {
         return res.status(400).json({ error: "Lỗi phiên giao dịch hoặc hết hạn!" });
     }
 
-    // So sánh OTP
     if (tempData.otp === otpUserNhap) {
-        // OTP ĐÚNG -> LƯU VÀO MONGODB
         try {
             let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
             const userKey = generateKey();
             
             const newUser = new mongoose.model('User')({ 
                 username: username, 
-                password: tempData.password, // Lấy pass đã mã hóa lúc nãy
+                password: tempData.password,
                 ipuser: userIP, 
                 key: userKey, 
                 location: tempData.location, 
@@ -231,7 +217,6 @@ app.post('/api/verify-otp', async (req, res) => {
 
             await newUser.save();
             
-            // Xóa khỏi bộ nhớ tạm cho nhẹ máy
             delete otpStore[username];
 
             res.status(200).json({ status: "userok", key: userKey });
@@ -240,7 +225,6 @@ app.post('/api/verify-otp', async (req, res) => {
             res.status(500).send("Lỗi khi lưu vào DB");
         }
     } else {
-        // OTP SAI
         res.status(400).json({ error: "Sai mã OTP rồi ông ơi!" });
     }
 });
