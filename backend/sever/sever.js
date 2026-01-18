@@ -14,17 +14,16 @@ const PORT = process.env.PORT || 3000;
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587, // Đổi từ 465 sang 587
+    secure: false, // Port 587 thì cái này phải là false
     auth: {
         user: process.env.otpuser,
-        pass: process.env.otppass
+        pass: process.env.otppass // Đây phải là Mật khẩu ứng dụng 16 số nhé
     },
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false // Giữ nguyên cái này để tránh lỗi chứng chỉ
     }
 });
-
 const otpStore = {};
 
 app.set('trust proxy', 1);
