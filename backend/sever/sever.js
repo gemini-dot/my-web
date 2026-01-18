@@ -11,11 +11,12 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3000; 
 
-// Khởi tạo Firebase Admin SDK
-const serviceAccount = require('./firebase-service-account.json'); // Tải file này từ Firebase Console
-
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+    })
 });
 
 app.set('trust proxy', 1);
