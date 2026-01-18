@@ -46,11 +46,26 @@ mongoose.connect(mongoURI)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Email của bạn (thêm vào .env)
-        pass: process.env.EMAIL_PASS  // App Password của Gmail (thêm vào .env)
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 1000,
+    rateLimit: 5,
+    connectionTimeout: 30000,  // 30 giây
+    greetingTimeout: 30000,
+    socketTimeout: 60000       // 60 giây
+});
+// Verify SMTP connection
+transporter.verify(function(error, success) {
+    if (error) {
+        console.log('❌ SMTP connection failed:', error);
+    } else {
+        console.log('✅ SMTP server is ready to send emails');
     }
 });
-
 // Schema lưu OTP tạm thời
 const OTPSchema = new mongoose.Schema({
     email: { type: String, required: true },
