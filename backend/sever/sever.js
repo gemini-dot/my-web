@@ -13,17 +13,16 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3000; 
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587, // Đổi từ 465 thành 587
-    secure: false, // Đổi từ true thành false (quan trọng!)
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false // Thêm dòng này để bỏ qua lỗi chứng chỉ nếu có
     }
 });
+
+console.log('EMAIL_USER:', process.env.EMAIL_USER);
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '***có***' : '***không có***');
+
 const otpStore = {};
 
 app.set('trust proxy', 1);
@@ -200,7 +199,11 @@ app.post('/api/verify-otp', async (req, res) => {
     if (!tempData) {
         return res.status(400).json({ error: "Lỗi phiên giao dịch hoặc hết hạn!" });
     }
-
+    const otpAge = Date.now() - tempData.timestamp;
+    if (otpAge > 5 * 60 * 1000) {
+        delete otpStore[username];
+        return res.status(400).json({ error: "Mã OTP đã hết hạn!" });
+    }
     if (tempData.otp === otpUserNhap) {
         try {
             let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
@@ -225,7 +228,7 @@ app.post('/api/verify-otp', async (req, res) => {
             res.status(500).send("Lỗi khi lưu vào DB");
         }
     } else {
-        res.status(400).json({ error: "Sai mã OTP rồi ông ơi!" });
+        res.status(400).json({ error: "Sai mã OTP rồi bạn ơi!" });
     }
 });
 
