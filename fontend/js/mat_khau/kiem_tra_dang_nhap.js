@@ -1,3 +1,4 @@
+document.getElementById('dang-nhap').addEventListener('click', kiemTra);
 async function kiemTra() {
     let user = document.getElementById("username").value.trim();
     let pass = document.getElementById("password").value.trim();
