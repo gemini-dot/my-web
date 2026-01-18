@@ -496,3 +496,174 @@ body:has(#hinhgai:hover) .text-quet::after {
     display: block;
     z-index: -1;
 }
+
+/* Container bao quanh - Mặc định ẩn hoàn toàn */
+.glass-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000000000; /* Đảm bảo nằm trên mọi thứ khác */
+    background: rgba(0, 0, 0, 0.5); /* Làm nền tối để nổi bật card */
+    backdrop-filter: blur(5px); /* Làm mờ nhẹ nền đằng sau */
+}
+
+/* Thẻ Liquid Glass */
+.liquid-glass-card {
+    position: relative;
+    width: 380px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1); 
+    border-radius: 25px;
+    backdrop-filter: blur(20px); /* Hiệu ứng kính mờ sâu */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    text-align: center;
+}
+
+/* Mấy quả cầu màu sắc "chảy" đằng sau lớp kính */
+.liquid-glass-card::before, 
+.liquid-glass-card::after {
+    content: '';
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(30px);
+    animation: move-liquid 8s infinite alternate ease-in-out;
+}
+
+.liquid-glass-card::before {
+    background: #00f2fe; /* Màu xanh nước biển */
+    top: -50px;
+    left: -50px;
+}
+
+.liquid-glass-card::after {
+    background: #4facfe; /* Màu xanh đậm hơn chút */
+    bottom: -50px;
+    right: -50px;
+    animation-delay: -4s;
+}
+
+@keyframes move-liquid {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 40px) scale(1.2); }
+}
+
+/* Nội dung bên trong */
+.glass-content h2 {
+    color: #fff;
+    font-family: 'Anton', sans-serif; /* Dùng font Anton giống bên ngoài của og */
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.glass-content p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+/* Ô nhập mã OTP */
+.otp-inputs {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.otp-field {
+    width: 45px;
+    height: 55px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.otp-field:focus {
+    border-color: #00f2fe;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Container bao phủ toàn màn hình */
+.glass-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw; /* Chiều rộng full màn hình */
+    height: 100vh; /* Chiều cao full màn hình */
+    display: none; /* Khi nào cần hiện thì đổi thành flex bằng JS */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center;     /* Căn giữa theo chiều dọc */
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.4); /* Làm tối nền để nổi bật popup */
+    backdrop-filter: blur(8px);    /* Làm mờ hậu cảnh */
+}
+
+/* Đảm bảo cái card không bị nhảy */
+.liquid-glass-card {
+    position: relative; /* Đổi từ absolute sang relative nếu og đang để absolute */
+    width: 380px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1); 
+    border-radius: 25px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;         /* Dùng flex cho chính cái card luôn */
+    flex-direction: column; /* Xếp các phần tử theo hàng dọc */
+    align-items: center;    /* Căn giữa các con bên trong (input, nút) */
+}
+
+/* Căn giữa nút xác nhận */
+.btn-verify {
+    margin-top: 20px;
+    width: 80%; /* Cho nút ngắn lại tí nhìn cho sang */
+    padding: 12px;
+    /* ... các thuộc tính khác giữ nguyên ... */
+}
+
+/* Tùy chỉnh nút xác nhận */
+.btn-verify {
+    margin-top: 10px;        /* Khoảng cách với ô OTP */
+    width: 100%;             /* Để nó dài bằng cụm ô OTP cho cân */
+    max-width: 250px;        /* Giới hạn độ rộng lại cho sang */
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.2); /* Nền trắng cực mờ */
+    border: 1px solid rgba(255, 255, 255, 0.4); /* Viền sáng nhẹ */
+    border-radius: 12px;     /* Bo góc giống ô OTP */
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(5px); /* Hiệu ứng kính cho nút */
+    transition: all 0.3s ease;  /* Hiệu ứng mượt mà khi hover */
+    outline: none;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover) */
+.btn-verify:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px); /* Nhích nhẹ lên trên */
+}
+
+/* Hiệu ứng khi nhấn vào (Active) */
+.btn-verify:active {
+    transform: translateY(0px);
+}
