@@ -7,12 +7,23 @@ const cors = require('cors');
 const app = express();
 const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3000; 
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.otpuser, // Thay bằng email của ông
+        pass: process.env.otppass // Thay bằng mật khẩu ứng dụng (không phải pass đăng nhập gmail nha)
+    }
+});
+
+const otpStore = {};
 
 app.set('trust proxy', 1);
-require('dotenv').config();
+
 
 // 1. Cấu hình Middleware
 app.use(express.json());
@@ -43,6 +54,16 @@ function generateKey() {
     }
     return result;
 }
+
+function OTPkey() {
+    const characters = '0123456789';
+    let result = '';
+    for (let i = 0; i < 4; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
 // Hàm gợi ý tên mới nếu bị trùng
 async function suggestUsername(baseName) {
     let isUnique = false;
@@ -65,6 +86,7 @@ const UserSchema = new mongoose.Schema({
     location: { type: String },
     device_info: { type: String }
 });
+
 const User = mongoose.model('User', UserSchema);
 
 const storage = multer.diskStorage({
@@ -126,40 +148,95 @@ app.get('/uploads/:user/:filename', (req, res) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // 4. API lưu tài khoản
-app.post('/api/save-account', dangKyLimiter, async (req, res) => {
-    let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
-    if (userIP && userIP.includes(',')) {
-        userIP = userIP.split(',')[0].trim();
-    }
-    if (!userIP) {
-        userIP = "Không xác định";
-    }
-    const { username, password, location, device_info} = req.body;
-    
-    if (!username || !password) {
-        return res.status(400).send("bad");
-    }
-    try {
-        const existingUser = await User.findOne({ username: username });
+app.post('/api/request-otp', dangKyLimiter, async (req, res) => {
+    const { username, password, location, device_info } = req.body;
 
-        if (existingUser) {
-            // Nếu trùng, gọi hàm gợi ý tên mới
-            const suggestion = await suggestUsername(username);
-            return res.status(400).json({
-                message: "Tên này có người dùng rồi bạn ơi!",
-                suggestedName: suggestion
-            });
+    // Kiểm tra xem tên đăng nhập đã có trong Database chưa
+    const existingUser = await mongoose.model('User').findOne({ username: username });
+    if (existingUser) {
+        const suggestion = await suggestUsername(username);
+        return res.status(400).json({
+            message: "Tên này có người dùng rồi!",
+            suggestedName: suggestion
+        });
+    }
+
+    // Tạo mã OTP ngẫu nhiên (dùng hàm ông đã viết sẵn)
+    const otpCode = OTPkey(); 
+
+    // Mã hóa mật khẩu trước khi lưu tạm (cho an toàn)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Lưu thông tin vào bộ nhớ tạm (otpStore) với key là username
+    otpStore[username] = {
+        password: hashedPassword,
+        otp: otpCode,
+        location,
+        device_info,
+        timestamp: Date.now() // Để sau này có thể làm chức năng hết hạn OTP
+    };
+
+    // Cấu hình nội dung email
+    const mailOptions = {
+        from: 'PROJECT MANAGEMENT SYSTEM',
+        to: username, // Giả sử username là email
+        subject: 'Mã xác thực tài khoản của ông đây!',
+        text: `Chào ông! Mã OTP của ông là: ${otpCode}. Đừng đưa cho ai nhé!`
+    };
+
+    // Gửi mail
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).json({ error: "Không gửi được mail rồi ông ơi!" });
+        } else {
+            console.log('Email sent: ' + info.response);
+            return res.status(200).json({ status: "otp_sent", message: "Đã gửi OTP" });
         }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const userKey = generateKey();
-        const newUser = new User({ username, password:hashedPassword , ipuser: userIP, key: userKey, location, device_info });
-        await newUser.save(); // Lưu trực tiếp lên đám mây
-        console.log("Đã lưu vào MongoDB:", username);
-        res.status(200).json({ status: "userok", key: userKey });
-    } catch (err) {
-        console.error("Lỗi khi lưu:", err);
-        res.status(500).send("badsever");
+    });
+});
+
+// API 2: XÁC THỰC OTP VÀ TẠO TÀI KHOẢN THẬT
+app.post('/api/verify-otp', async (req, res) => {
+    const { username, otpUserNhap } = req.body;
+
+    // Lấy thông tin từ kho lưu tạm
+    const tempData = otpStore[username];
+
+    if (!tempData) {
+        return res.status(400).json({ error: "Lỗi phiên giao dịch hoặc hết hạn!" });
+    }
+
+    // So sánh OTP
+    if (tempData.otp === otpUserNhap) {
+        // OTP ĐÚNG -> LƯU VÀO MONGODB
+        try {
+            let userIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+            const userKey = generateKey();
+            
+            const newUser = new mongoose.model('User')({ 
+                username: username, 
+                password: tempData.password, // Lấy pass đã mã hóa lúc nãy
+                ipuser: userIP, 
+                key: userKey, 
+                location: tempData.location, 
+                device_info: tempData.device_info 
+            });
+
+            await newUser.save();
+            
+            // Xóa khỏi bộ nhớ tạm cho nhẹ máy
+            delete otpStore[username];
+
+            res.status(200).json({ status: "userok", key: userKey });
+        } catch (err) {
+            console.error(err);
+            res.status(500).send("Lỗi khi lưu vào DB");
+        }
+    } else {
+        // OTP SAI
+        res.status(400).json({ error: "Sai mã OTP rồi ông ơi!" });
     }
 });
 
