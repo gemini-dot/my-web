@@ -80,25 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => messageDiv.remove(), 300);
         }, 5000);
     }
-
-    function displayFileUrl(url, targetForm) {
-        if (!targetForm) return;
-        const oldLink = document.querySelector('.file-url-container');
-        if (oldLink) {
-            oldLink.remove();
-        }
-        const linkContainer = document.createElement('div');
-        linkContainer.className = 'file-url-container';
-        linkContainer.style.marginTop = '20px';
-        linkContainer.style.padding = '10px';
-        linkContainer.style.border = '1px dashed #ccc';
-
-        linkContainer.innerHTML = `
-            <p style="font-weight: bold; color: #2ecc71;">✓ file của bạn đã được tải lên sever</p>
-            <div style="display: flex; gap: 10px; align-items: center;"></div>
-        `;
-        targetForm.appendChild(linkContainer);
-    }
     // Hiển thị tên file khi chọn
     fileInput.addEventListener('change', function(e) {
         if (e.target.files.length > 0) {
